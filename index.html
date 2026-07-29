@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>训练营养手册 · 一周饮食计划</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #F1F4EF;
+    --paper: #FFFFFF;
+    --ink: #1D2A22;
+    --ink-soft: #4B5A50;
+    --line: #DCE3DA;
+    --forest: #1F4B3F;
+    --forest-deep: #16352C;
+    --gold: #D9A441;
+    --gold-soft: #F3E3C2;
+    --good: #3F7A5B;
+    --good-bg: #E4F0E7;
+    --warn: #B5533C;
+    --warn-bg: #FBE8E1;
+    --carb: #5B7FA6;
+    --fat: #A65B7F;
+    --radius: 14px;
+  }
+  *{ box-sizing: border-box; }
+  html{ scroll-behavior: smooth; }
+  body{
+    margin:0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: 80px;
+  }
+  .num{ font-family: 'IBM Plex Mono', monospace; font-variant-numeric: tabular-nums; }
+
+  /* ---------- Header ---------- */
+  header.top{
+    background: var(--forest);
+    color: #EFEFE7;
+    padding: 42px 24px 30px;
+    position: relative;
+    overflow: hidden;
+  }
+  header.top::after{
+    content:"";
+    position:absolute; right:-60px; top:-60px;
+    width:220px; height:220px; border-radius:50%;
+    background: radial-gradient(circle at 30% 30%, rgba(217,164,65,0.35), transparent 70%);
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-size: 12px;
+    color: var(--gold);
+    margin: 0 0 10px;
+  }
+  h1.title{
+    font-family:'Fraunces', serif;
+    font-weight: 600;
+    font-size: clamp(28px, 5vw, 42px);
+    margin: 0 0 8px;
+    letter-spacing: -0.01em;
+  }
+  .subtitle{
+    color: #C8D3CB;
+    max-width: 640px;
+    line-height: 1.6;
+    font-size: 15px;
+    margin: 0;
+  }
+  .target-pill{
+    display:inline-flex; gap: 14px; margin-top: 20px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 999px;
+    padding: 10px 20px;
+    flex-wrap: wrap;
+  }
+  .target-pill span{ font-size: 13px; color: #E8ECE4; }
+  .target-pill b{ color: var(--gold); font-family:'IBM Plex Mono',monospace; }
+
+  /* ---------- Nav ---------- */
+  nav.tabs{
+    position: sticky; top:0; z-index: 50;
+    background: rgba(241,244,239,0.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+    display:flex; gap:4px; overflow-x:auto;
+    padding: 10px 16px;
+  }
+  nav.tabs button{
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+    background: transparent;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 999px;
+    color: var(--ink-soft);
+    cursor:pointer;
+    transition: all .15s ease;
+  }
+  nav.tabs button:hover{ background: #E6E9E1; color: var(--ink); }
+  nav.tabs button.active{ background: var(--forest); color: #fff; }
+
+  main{ max-width: 980px; margin: 0 auto; padding: 30px 20px 10px; }
+  section.panel{ display:none; animation: fade .25s ease; }
+  section.panel.active{ display:block; }
+  @keyframes fade{ from{opacity:0; transform: translateY(4px);} to{opacity:1; transform:none;} }
+
+  h2.section-title{
+    font-family:'Fraunces', serif;
+    font-size: 24px;
+    font-weight: 600;
+    margin: 4px 0 4px;
+  }
+  p.section-desc{ color: var(--ink-soft); margin: 0 0 22px; font-size: 14px; line-height:1.6; max-width: 640px;}
+
+  .card{
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 22px;
+    margin-bottom: 18px;
+  }
+
+  /* ---------- Settings (weight / goal) ---------- */
+  .settings-card{ display:flex; flex-wrap:wrap; gap:20px; align-items:flex-end; }
+  .settings-field{ display:flex; flex-direction:column; gap:6px; }
+  .settings-field label{ font-size:12px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.05em; font-weight:600;}
+  .settings-field input[type=number]{
+    width:110px; padding:9px 10px; border-radius:8px; border:1px solid var(--line);
+    font-family:'IBM Plex Mono',monospace; font-size:15px; background:#fff;
+  }
+  .goal-toggle{ display:flex; gap:6px; }
+  .goal-toggle button{
+    font-family:'IBM Plex Sans'; font-size:13px; font-weight:600;
+    padding:9px 14px; border-radius:8px; border:1px solid var(--line);
+    background:#fff; color:var(--ink-soft); cursor:pointer;
+  }
+  .goal-toggle button.active{ background: var(--forest); border-color:var(--forest); color:#fff; }
+  .apply-btn{
+    font-family:'IBM Plex Sans'; font-size:13px; font-weight:700; color:#fff;
+    background: var(--gold); border:none; border-radius:8px; padding:10px 18px; cursor:pointer;
+  }
+  .settings-result{ font-size:13px; color:var(--ink-soft); line-height:1.7; margin-top:14px; }
+  .settings-result b{ color:var(--forest); font-family:'IBM Plex Mono',monospace; }
+
+  /* ---------- Overview week strip (signature element) ---------- */
+  .week-strip{
+    display:grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    align-items: end;
+    height: 240px;
+    padding: 10px 4px 0;
+    position: relative;
+  }
+  .week-strip .target-band{
+    position:absolute; left:0; right:0;
+    background: var(--gold-soft);
+    border-top: 1px dashed var(--gold);
+    border-bottom: 1px dashed var(--gold);
+    opacity:0.6;
+  }
+  .day-col{ display:flex; flex-direction:column; align-items:center; gap:6px; position:relative; height:100%; justify-content:flex-end;}
+  .bar-pair{ display:flex; gap:3px; align-items:flex-end; height: 190px; }
+  .bar{ width: 12px; border-radius: 4px 4px 2px 2px; position:relative; transition: height .4s ease; }
+  .bar.kcal{ background: var(--forest); }
+  .bar.protein{ background: var(--gold); }
+  .bar.carbs{ background: var(--carb); }
+  .bar.fat{ background: var(--fat); }
+  .day-label{ font-size:12px; color: var(--ink-soft); font-weight:600; }
+  .day-status{ font-size: 15px; }
+  .legend{ display:flex; gap:18px; margin-top:14px; font-size:12px; color:var(--ink-soft); flex-wrap:wrap; }
+  .legend span{ display:flex; align-items:center; gap:6px; }
+  .swatch{ width:10px; height:10px; border-radius:3px; display:inline-block; }
+
+  .stat-grid{ display:grid; grid-template-columns: repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin-top: 16px;}
+  .stat{ background: var(--bg); border-radius: 10px; padding: 14px 16px; }
+  .stat .k{ font-size: 11px; color: var(--ink-soft); text-transform:uppercase; letter-spacing:0.06em;}
+  .stat .v{ font-family:'IBM Plex Mono',monospace; font-size: 20px; font-weight:600; margin-top:4px;}
+
+  /* ---------- Day selector chips ---------- */
+  .day-chips{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom: 18px; }
+  .day-chips button{
+    font-family:'IBM Plex Sans'; font-size:13px; font-weight:600;
+    padding: 8px 14px; border-radius: 999px; border:1px solid var(--line);
+    background:#fff; color:var(--ink-soft); cursor:pointer;
+  }
+  .day-chips button.active{ background: var(--forest); border-color:var(--forest); color:#fff; }
+
+  .totals-bar{
+    display:flex; flex-wrap:wrap; gap:16px; align-items:center;
+    background: var(--forest); color:#fff;
+    border-radius: var(--radius); padding: 18px 22px; margin-bottom: 18px;
+  }
+  .totals-bar .tb-item{ display:flex; flex-direction:column; gap:2px; }
+  .totals-bar .tb-item .k{ font-size:11px; color:#C8D3CB; text-transform:uppercase; letter-spacing:0.06em;}
+  .totals-bar .tb-item .v{ font-family:'IBM Plex Mono',monospace; font-size:22px; font-weight:600; }
+  .totals-bar .tb-item .t{ font-size:11px; color:#A9C2B2; margin-top:1px;}
+  .badge{ padding:8px 16px; border-radius: 999px; font-weight:600; font-size:13px; }
+  .badge.good{ background: var(--good-bg); color: var(--good); }
+  .badge.warn{ background: var(--warn-bg); color: var(--warn); }
+  .badges-wrap{ display:flex; flex-direction:column; gap:6px; margin-left:auto; }
+
+  /* ---------- Donut chart ---------- */
+  .donut-row{ display:flex; gap:24px; align-items:center; flex-wrap:wrap; }
+  .donut{
+    width:140px; height:140px; border-radius:50%; flex:none;
+    display:flex; align-items:center; justify-content:center;
+    position:relative;
+  }
+  .donut::before{
+    content:""; position:absolute; inset:20px; background:var(--paper); border-radius:50%;
+  }
+  .donut-center{ position:relative; z-index:1; text-align:center; }
+  .donut-center .v{ font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:16px; color:var(--forest); }
+  .donut-center .k{ font-size:10px; color:var(--ink-soft); }
+  .donut-legend{ display:flex; flex-direction:column; gap:8px; }
+  .donut-legend .dl-item{ display:flex; align-items:center; gap:8px; font-size:13px; color:var(--ink-soft); }
+  .donut-legend .dl-item b{ color:var(--ink); font-family:'IBM Plex Mono',monospace; margin-left:auto; padding-left:14px;}
+  .dl-swatch{ width:10px; height:10px; border-radius:3px; flex:none; }
+
+  table.meal-table{ width:100%; border-collapse: collapse; }
+  table.meal-table th{
+    text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:0.05em;
+    color: var(--ink-soft); border-bottom: 1px solid var(--line); padding: 8px 6px;
+  }
+  table.meal-table td{ padding: 8px 6px; border-bottom: 1px solid #EEF1EA; font-size: 14px; vertical-align:middle;}
+  table.meal-table tr.meal-header td{
+    font-weight:700; color: var(--forest); background: var(--bg);
+    border-radius: 6px; padding-top:10px; padding-bottom:10px;
+  }
+  .grams-input{
+    width: 64px; font-family:'IBM Plex Mono',monospace; font-size:14px;
+    border: 1px solid var(--line); border-radius:6px; padding:5px 6px;
+    background:#fff; color: var(--ink);
+  }
+  .grams-input:focus{ outline:2px solid var(--gold); outline-offset:1px; }
+  .reset-btn{
+    font-family:'IBM Plex Sans'; font-size:13px; font-weight:600; color: var(--forest);
+    background: var(--good-bg); border:none; border-radius:8px; padding:8px 14px; cursor:pointer;
+    margin-bottom: 14px;
+  }
+
+  /* ---------- Weekly overview table (sheet1) ---------- */
+  .scroll-x{ overflow-x:auto; }
+  table.week-table{ border-collapse:collapse; width:100%; min-width: 760px; }
+  table.week-table th, table.week-table td{
+    border: 1px solid var(--line); padding: 10px 10px; font-size: 13px; text-align:left; vertical-align:top;
+  }
+  table.week-table th{ background: var(--forest); color:#fff; font-weight:600; position:sticky; top:0;}
+  table.week-table td.row-label{ font-weight:700; background: var(--bg); color:var(--forest); white-space:nowrap; }
+  table.week-table tr:nth-child(even) td:not(.row-label){ background: #FAFBF8; }
+
+  /* ---------- Food lists ---------- */
+  .food-grid{ display:grid; grid-template-columns: repeat(auto-fit,minmax(230px,1fr)); gap: 16px; }
+  .food-group h3{ font-family:'Fraunces',serif; font-size:16px; margin:0 0 10px; color:var(--forest); }
+  .food-group ul{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px;}
+  .food-group li{ font-size:14px; padding:8px 10px; background: var(--bg); border-radius:8px; }
+  .food-group .note{ font-size:12px; color:var(--ink-soft); margin-top:6px; }
+  .avoid-list{ display:flex; flex-wrap:wrap; gap:8px; }
+  .avoid-list span{ background: var(--warn-bg); color: var(--warn); font-size:13px; padding:7px 12px; border-radius:999px; font-weight:600; }
+
+  /* ---------- Goals ---------- */
+  .goal-table{ width:100%; border-collapse:collapse; }
+  .goal-table td{ padding: 10px 8px; border-bottom:1px solid #EEF1EA; font-size:14px; }
+  .goal-table td:first-child{ font-weight:600; width:40%; color: var(--forest); }
+  .icon-row{ display:grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap:14px; margin-top:8px;}
+  .icon-card{ background: var(--bg); border-radius:10px; padding:16px; }
+  .icon-card .label{ font-size:12px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.05em; }
+  .icon-card .value{ font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:17px; margin-top:4px; }
+
+  /* ---------- Nutrition DB ---------- */
+  input#dbSearch{
+    width:100%; padding:12px 14px; border-radius:10px; border:1px solid var(--line);
+    font-family:'IBM Plex Sans'; font-size:14px; margin-bottom:16px; background:#fff;
+  }
+  table.db-table{ width:100%; border-collapse:collapse; }
+  table.db-table th{ text-align:left; font-size:11px; text-transform:uppercase; color:var(--ink-soft); border-bottom:1px solid var(--line); padding:8px 6px;}
+  table.db-table td{ padding:9px 6px; border-bottom:1px solid #EEF1EA; font-size:14px; }
+  table.db-table td.mono{ font-family:'IBM Plex Mono',monospace; }
+
+  footer{ text-align:center; color: var(--ink-soft); font-size:12px; padding: 30px 20px 10px; }
+
+  @media (max-width: 640px){
+    .week-strip{ height: 200px; }
+    .bar-pair{ height: 150px; }
+    table.meal-table td, table.meal-table th{ font-size:13px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <p class="eyebrow">Personal Training · Nutrition Guide</p>
+  <h1 class="title">训练营养手册</h1>
+  <p class="subtitle">一周七天的饮食安排、可选食物清单与热量 / 蛋白质 / 碳水 / 脂肪计算器 —— 目标区间会根据你的体重与训练目标自动计算，克重可调，数值自动更新。</p>
+  <div class="target-pill" id="targetPill"></div>
+</header>
+
+<nav class="tabs" id="tabNav">
+  <button data-panel="overview" class="active">本周概览</button>
+  <button data-panel="calc">每日计算器</button>
+  <button data-panel="weekplan">一周饮食速览</button>
+  <button data-panel="foods">食物清单</button>
+  <button data-panel="goals">每周目标 &amp; 运动</button>
+  <button data-panel="db">营养数据库</button>
+</nav>
+
+<main>
+
+  <!-- ===================== OVERVIEW ===================== -->
+  <section class="panel active" id="panel-overview">
+    <h2 class="section-title">本周热量 / 蛋白质 / 碳水 / 脂肪总览</h2>
+    <p class="section-desc">深绿柱代表当日总热量、金色柱代表当日总蛋白质、蓝色柱代表碳水、玫红柱代表脂肪，虚线区间为目标热量带。数值来自"每日计算器"中的克重设置，修改后会自动同步。</p>
+    <div class="card">
+      <div class="week-strip" id="weekStrip"></div>
+      <div class="legend">
+        <span><i class="swatch" style="background:var(--forest)"></i>热量 (kcal)</span>
+        <span><i class="swatch" style="background:var(--gold)"></i>蛋白质 (g ×10 等效高度)</span>
+        <span><i class="swatch" style="background:var(--carb)"></i>碳水 (g ×10 等效高度)</span>
+        <span><i class="swatch" style="background:var(--fat)"></i>脂肪 (g ×10 等效高度)</span>
+        <span><i class="swatch" style="background:var(--gold-soft); border:1px dashed var(--gold)"></i>目标热量带</span>
+      </div>
+      <div class="stat-grid" id="weekStats"></div>
+    </div>
+  </section>
+
+  <!-- ===================== CALCULATOR ===================== -->
+  <section class="panel" id="panel-calc">
+    <h2 class="section-title">每日热量 / 蛋白质 / 碳水 / 脂肪计算器</h2>
+    <p class="section-desc">克重可自行修改，热量、蛋白质、碳水与脂肪会按"营养数据库"自动重新计算，数值均为常见估算值，仅供参考。</p>
+
+    <div class="card settings-card">
+      <div class="settings-field">
+        <label>体重 (kg)</label>
+        <input type="number" id="weightInput" min="30" max="200" step="0.5" value="80">
+      </div>
+      <div class="settings-field">
+        <label>训练目标</label>
+        <div class="goal-toggle" id="goalToggle">
+          <button data-goal="bulk">增肌</button>
+          <button data-goal="maintain" class="active">维持</button>
+          <button data-goal="cut">减脂</button>
+        </div>
+      </div>
+      <button class="apply-btn" id="applySettingsBtn">应用并重新计算目标</button>
+      <div class="settings-result" id="settingsResult" style="flex-basis:100%;"></div>
+    </div>
+
+    <div class="day-chips" id="dayChips"></div>
+    <button class="reset-btn" id="resetBtn">↺ 恢复该天默认克重</button>
+
+    <div class="totals-bar" id="totalsBar"></div>
+
+    <div class="card">
+      <h3 style="font-family:'Fraunces',serif;color:var(--forest);margin:0 0 14px;font-size:16px;">当日热量来源占比</h3>
+      <div class="donut-row" id="donutRow"></div>
+    </div>
+
+    <div class="card">
+      <div class="scroll-x">
+        <table class="meal-table">
+          <thead>
+            <tr><th style="width:22%">餐次</th><th style="width:26%">食物</th><th style="width:12%">克重 (g)</th><th style="width:10%">热量</th><th style="width:10%">蛋白质</th><th style="width:10%">碳水</th><th style="width:10%">脂肪</th></tr>
+          </thead>
+          <tbody id="mealTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== WEEK PLAN OVERVIEW ===================== -->
+  <section class="panel" id="panel-weekplan">
+    <h2 class="section-title">📅 一周饮食速览</h2>
+    <p class="section-desc">整体安排一览，具体克重与营养数据请见"每日计算器"。</p>
+    <div class="card scroll-x">
+      <table class="week-table" id="weekPlanTable"></table>
+    </div>
+  </section>
+
+  <!-- ===================== FOODS ===================== -->
+  <section class="panel" id="panel-foods">
+    <h2 class="section-title">食物清单</h2>
+    <p class="section-desc">建议长期作为主要食物来源，以及应当尽量减少的食物类别。</p>
+
+    <div class="card">
+      <h3 style="font-family:'Fraunces',serif;color:var(--forest);margin-top:0;">🟢 可以吃的食物（建议长期作为主要食物）</h3>
+      <div class="food-grid" id="foodsGoodGrid"></div>
+    </div>
+
+    <div class="card">
+      <h3 style="font-family:'Fraunces',serif;color:var(--warn);margin-top:0;">🚫 尽量少吃</h3>
+      <div class="avoid-list" id="avoidList"></div>
+    </div>
+  </section>
+
+  <!-- ===================== GOALS ===================== -->
+  <section class="panel" id="panel-goals">
+    <h2 class="section-title">🥚 每周目标 &amp; 💪 运动安排</h2>
+    <div class="card">
+      <table class="goal-table" id="goalTable"></table>
+    </div>
+    <div class="card">
+      <h3 style="font-family:'Fraunces',serif;color:var(--forest);margin-top:0;">💧 每天饮水 &amp; 🏃 每周运动</h3>
+      <div class="icon-row" id="exerciseRow"></div>
+    </div>
+  </section>
+
+  <!-- ===================== DB ===================== -->
+  <section class="panel" id="panel-db">
+    <h2 class="section-title">营养数据库</h2>
+    <p class="section-desc">每 100g 含量，均为常见估算值，非精确实验室数据。</p>
+    <div class="card">
+      <input type="text" id="dbSearch" placeholder="搜索食物名称…">
+      <div class="scroll-x">
+        <table class="db-table">
+          <thead><tr><th>食物</th><th>说明</th><th>热量 (kcal/100g)</th><th>蛋白质 (g/100g)</th><th>碳水 (g/100g)</th><th>脂肪 (g/100g)</th></tr></thead>
+          <tbody id="dbTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>数据整理自训练饮食计划表格 · 所有营养数值均为常见估算值，仅供参考，请结合自身情况调整。</footer>
+
+<script>
+/* ============ DATA ============ */
+/* kcal / protein(g) / carbs(g) / fat(g) — all per 100g, common estimation values */
+const FOOD_DB = {
+  "燕麦(干)": {desc:"未煮燕麦片", kcal:389, protein:13.5, carbs:66, fat:6.9},
+  "脱脂牛奶": {desc:"0%脂肪", kcal:35, protein:3.4, carbs:5, fat:0.1},
+  "全蛋": {desc:"带蛋黄整蛋", kcal:155, protein:13, carbs:1.1, fat:11},
+  "蛋清": {desc:"仅蛋白部分", kcal:52, protein:11, carbs:0.7, fat:0.2},
+  "苹果": {desc:"带皮生食", kcal:52, protein:0.3, carbs:14, fat:0.2},
+  "香蕉": {desc:"去皮", kcal:89, protein:1.1, carbs:23, fat:0.3},
+  "希腊酸奶(0%)": {desc:"脱脂无糖", kcal:59, protein:10, carbs:3.6, fat:0.4},
+  "杏仁": {desc:"生/烤,无盐", kcal:579, protein:21, carbs:22, fat:50},
+  "核桃": {desc:"去壳", kcal:654, protein:15, carbs:14, fat:65},
+  "橙子": {desc:"去皮生食", kcal:47, protein:0.9, carbs:12, fat:0.1},
+  "猕猴桃": {desc:"去皮生食", kcal:61, protein:1.1, carbs:15, fat:0.5},
+  "草莓": {desc:"生食", kcal:32, protein:0.7, carbs:7.7, fat:0.3},
+  "蓝莓": {desc:"生食", kcal:57, protein:0.7, carbs:14, fat:0.3},
+  "梨": {desc:"带皮生食", kcal:57, protein:0.4, carbs:15, fat:0.1},
+  "榛子": {desc:"去壳", kcal:628, protein:15, carbs:17, fat:61},
+  "开心果": {desc:"去壳", kcal:560, protein:20, carbs:28, fat:45},
+  "鸡胸肉(熟)": {desc:"去皮水煮/煎", kcal:165, protein:31, carbs:0, fat:3.6},
+  "糙米(熟)": {desc:"煮熟后", kcal:112, protein:2.6, carbs:24, fat:0.9},
+  "西兰花": {desc:"生/清蒸", kcal:34, protein:2.8, carbs:7, fat:0.4},
+  "猪里脊(熟)": {desc:"瘦肉部分", kcal:143, protein:26, carbs:0, fat:3.5},
+  "土豆(熟)": {desc:"水煮/烤,不加油", kcal:87, protein:2, carbs:20, fat:0.1},
+  "菠菜": {desc:"生/清炒不加油", kcal:23, protein:2.9, carbs:3.6, fat:0.4},
+  "全麦意面(熟)": {desc:"煮熟后", kcal:124, protein:5, carbs:25, fat:1.1},
+  "彩椒": {desc:"生食", kcal:31, protein:1, carbs:6, fat:0.3},
+  "红薯(熟)": {desc:"水煮/烤", kcal:90, protein:2, carbs:21, fat:0.1},
+  "沙拉蔬菜": {desc:"生菜类混合,不加酱", kcal:20, protein:1.5, carbs:3.5, fat:0.2},
+  "牛里脊(熟)": {desc:"瘦肉部分", kcal:150, protein:28, carbs:0, fat:4},
+  "三文鱼(熟)": {desc:"煎/烤,不加油", kcal:208, protein:20, carbs:0, fat:13},
+  "金枪鱼(水浸罐头)": {desc:"沥干后", kcal:116, protein:26, carbs:0, fat:0.8},
+  "全麦面包": {desc:"普通切片", kcal:247, protein:13, carbs:41, fat:3.4},
+  "鳕鱼(熟)": {desc:"清蒸/煎,不加油", kcal:105, protein:23, carbs:0, fat:0.9},
+  "虾(熟)": {desc:"去壳", kcal:99, protein:24, carbs:0.2, fat:0.3},
+  "蛋白粉": {desc:"乳清蛋白粉", kcal:400, protein:80, carbs:8, fat:5},
+  "玉米(熟)": {desc:"煮熟", kcal:96, protein:3.4, carbs:21, fat:1.5},
+};
+
+const DAYS = ["星期一","星期二","星期三","星期四","星期五","星期六","星期日"];
+
+// default grams per day, following the original workbook's calculator sheet
+const WEEK_PLAN = {
+  "星期一": [
+    {meal:"早餐", items:[["燕麦(干)",80],["脱脂牛奶",300],["全蛋",50],["蛋清",99],["苹果",180]]},
+    {meal:"上午加餐", items:[["希腊酸奶(0%)",150],["香蕉",120]]},
+    {meal:"午餐", items:[["鸡胸肉(熟)",200],["糙米(熟)",100],["西兰花",150]]},
+    {meal:"训练前", items:[["香蕉",120]]},
+    {meal:"训练后", items:[["蛋白粉",30]]},
+    {meal:"晚餐", items:[["三文鱼(熟)",200],["红薯(熟)",250],["沙拉蔬菜",150]]},
+    {meal:"睡前", items:[["脱脂牛奶",200]]},
+  ],
+  "星期二": [
+    {meal:"早餐", items:[["燕麦(干)",80],["脱脂牛奶",300],["全蛋",50],["蛋清",99],["苹果",180]]},
+    {meal:"上午加餐", items:[["苹果",180],["杏仁",15]]},
+    {meal:"午餐", items:[["猪里脊(熟)",200],["土豆(熟)",300],["菠菜",150]]},
+    {meal:"训练前", items:[["香蕉",120]]},
+    {meal:"训练后", items:[["蛋白粉",30]]},
+    {meal:"晚餐", items:[["金枪鱼(水浸罐头)",150],["全麦面包",60],["沙拉蔬菜",150]]},
+    {meal:"睡前", items:[["脱脂牛奶",200]]},
+  ],
+  "星期三": [
+    {meal:"早餐", items:[["燕麦(干)",80],["脱脂牛奶",300],["全蛋",50],["蛋清",99],["苹果",180]]},
+    {meal:"上午加餐", items:[["希腊酸奶(0%)",150]]},
+    {meal:"午餐", items:[["鸡胸肉(熟)",200],["全麦意面(熟)",100],["彩椒",150]]},
+    {meal:"训练前", items:[["香蕉",120]]},
+    {meal:"训练后", items:[["蛋白粉",30]]},
+    {meal:"晚餐", items:[["鳕鱼(熟)",200],["西兰花",150],["红薯(熟)",250]]},
+    {meal:"睡前", items:[["脱脂牛奶",200]]},
+  ],
+  "星期四": [
+    {meal:"早餐", items:[["燕麦(干)",80],["脱脂牛奶",300],["全蛋",50],["蛋清",99],["苹果",180]]},
+    {meal:"上午加餐", items:[["橙子",150],["核桃",15]]},
+    {meal:"午餐", items:[["鸡胸肉(熟)",200],["糙米(熟)",100],["西兰花",150]]},
+    {meal:"训练前", items:[["香蕉",120]]},
+    {meal:"训练后", items:[["蛋白粉",30]]},
+    {meal:"晚餐", items:[["虾(熟)",250],["土豆(熟)",250],["菠菜",150]]},
+    {meal:"睡前", items:[["脱脂牛奶",200]]},
+  ],
+  "星期五": [
+    {meal:"早餐", items:[["燕麦(干)",80],["脱脂牛奶",300],["全蛋",50],["蛋清",99],["苹果",180]]},
+    {meal:"上午加餐", items:[["香蕉",120]]},
+    {meal:"午餐", items:[["鸡胸肉(熟)",200],["红薯(熟)",250],["沙拉蔬菜",150]]},
+    {meal:"训练前", items:[["香蕉",120]]},
+    {meal:"训练后", items:[["蛋白粉",30]]},
+    {meal:"晚餐", items:[["三文鱼(熟)",200],["糙米(熟)",100],["西兰花",150]]},
+    {meal:"睡前", items:[["脱脂牛奶",200]]},
+  ],
+  "星期六": [
+    {meal:"早餐", items:[["燕麦(干)",80],["脱脂牛奶",300],["全蛋",50],["蛋清",99],["苹果",180]]},
+    {meal:"上午加餐", items:[["希腊酸奶(0%)",150]]},
+    {meal:"午餐", items:[["牛里脊(熟)",180],["糙米(熟)",100],["西兰花",150]]},
+    {meal:"训练前", items:[["香蕉",120]]},
+    {meal:"训练后", items:[["蛋白粉",30]]},
+    {meal:"晚餐", items:[["鸡胸肉(熟)",200],["土豆(熟)",300],["沙拉蔬菜",150]]},
+    {meal:"睡前", items:[["脱脂牛奶",200]]},
+  ],
+  "星期日": [
+    {meal:"早餐", items:[["燕麦(干)",80],["脱脂牛奶",300],["全蛋",50],["蛋清",99],["苹果",180]]},
+    {meal:"上午加餐", items:[["苹果",180]]},
+    {meal:"午餐", items:[["鸡胸肉(熟)",200],["全麦意面(熟)",100],["菠菜",150]]},
+    {meal:"训练前", items:[["香蕉",120]]},
+    {meal:"训练后", items:[["蛋白粉",30]]},
+    {meal:"晚餐", items:[["金枪鱼(水浸罐头)",150],["红薯(熟)",250],["沙拉蔬菜",150]]},
+    {meal:"睡前", items:[["脱脂牛奶",200]]},
+  ],
+};
+
+// deep clone for a "current / editable" state, keep defaults separately for reset
+const currentGrams = JSON.parse(JSON.stringify(WEEK_PLAN));
+
+const WEEK_SUMMARY_TABLE = {
+  rows: ["时间","早餐","上午加餐","午餐","训练前","训练后","晚餐","睡前（可选）"],
+  data: {
+    "早餐": Array(7).fill("燕麦80g＋脱脂牛奶300ml＋1全蛋3蛋白＋苹果"),
+    "上午加餐": ["希腊酸奶0%＋香蕉","苹果＋杏仁","希腊酸奶","橙子＋核桃","香蕉","希腊酸奶","苹果"],
+    "午餐": ["鸡胸200g＋糙米100g＋西兰花","猪里脊200g＋土豆300g＋菠菜","鸡胸200g＋全麦意面100g＋彩椒","鸡胸200g＋糙米100g＋西兰花","鸡胸200g＋红薯250g＋沙拉","牛里脊180g＋糙米100g＋西兰花","鸡胸200g＋全麦意面100g＋菠菜"],
+    "训练前": Array(7).fill("香蕉"),
+    "训练后": ["蛋白粉1勺","蛋白粉1勺","蛋白粉1勺","蛋白粉1勺","蛋白粉1勺","蛋白粉1勺","蛋白粉1勺（如果训练）"],
+    "晚餐": ["三文鱼200g＋红薯250g＋沙拉","金枪鱼＋全麦面包2片＋沙拉","鳕鱼200g＋西兰花＋红薯","虾250g＋土豆250g＋菠菜","三文鱼200g＋糙米100g＋西兰花","鸡胸200g＋土豆300g＋沙拉","金枪鱼＋红薯250g＋沙拉"],
+    "睡前（可选）": ["脱脂牛奶或希腊酸奶","同左","同左","同左","同左","同左","同左"],
+  }
+};
+
+const FOODS_GOOD = [
+  {title:"🥩 蛋白质 · 推荐", items:["鸡胸肉","火鸡胸","三文鱼","鳕鱼","金枪鱼（水浸）","希腊酸奶（0%）","脱脂牛奶"]},
+  {title:"🥩 蛋白质 · 适量", items:["牛里脊（瘦）","猪里脊（Lomo）","鸡蛋（每周4个蛋黄以内）","虾","鱿鱼、贝类","低脂奶酪","蛋白粉（训练后1勺）"]},
+  {title:"🍚 碳水", items:["燕麦","糙米","全麦意面","全麦面包","红薯","土豆","玉米"]},
+  {title:"🥦 蔬菜", items:["西兰花","菠菜","生菜","黄瓜","番茄","彩椒","洋葱","胡萝卜","芦笋","花椰菜"], note:"全部都可以吃，每天至少 500g"},
+  {title:"🍎 水果", items:["苹果","香蕉","橙子","猕猴桃","草莓","蓝莓","梨"], note:"每天3份左右"},
+  {title:"🥜 健康脂肪", items:["杏仁","核桃","榛子","开心果","特级初榨橄榄油"], note:"每天 20～30g"},
+];
+
+const FOODS_AVOID = ["培根","香肠","腊肠","五花肉","炸鸡","炸薯条","披萨","汉堡","奶油","黄油","蛋糕","甜甜圈","曲奇","薯片","含糖饮料"];
+
+const GOALS = [
+  ["鸡胸肉","4～5餐"],["三文鱼","2餐"],["白鱼（鳕鱼等）","1～2餐"],["金枪鱼","1～2餐"],
+  ["虾/海鲜","1餐"],["牛里脊","1餐"],["鸡蛋","每周4个蛋黄以内（蛋白可多吃）"],
+  ["坚果","每天20～30g"],["水果","每天3份"],["蔬菜","每天至少500g"],
+  ["蛋白粉","训练后1勺，若当天蛋白质不足可补第2勺"],
+];
+
+const EXERCISE = [
+  {label:"每天饮水", value:"2～3L 水"},
+  {label:"力量训练", value:"4～6天/周"},
+  {label:"有氧运动", value:"2～3天/周（30分钟快走、跑步或骑车）"},
+];
+
+/* ============ TARGETS (weight & goal driven) ============ */
+const GOAL_LABELS = {bulk:"增肌", maintain:"维持", cut:"减脂"};
+let userWeight = 80;
+let userGoal = "maintain";
+let TARGETS = computeTargets(userWeight, userGoal);
+
+// Estimates: base kcal/kg factor for an actively-training adult (~30 kcal/kg maintenance),
+// adjusted up for bulk / down for cut. Protein g/kg and fat % of kcal follow common
+// sports-nutrition ranges. Carbs fill the remaining calories. All values are rough
+// estimates for planning purposes only, not medical advice.
+function computeTargets(weight, goal){
+  const base = weight * 30;
+  let kcalMin, kcalMax, proteinMult, fatPctMin, fatPctMax;
+  if(goal === 'bulk'){
+    kcalMin = base*1.05; kcalMax = base*1.15; proteinMult = 2.0; fatPctMin = 0.20; fatPctMax = 0.28;
+  } else if(goal === 'cut'){
+    kcalMin = base*0.80; kcalMax = base*0.90; proteinMult = 2.2; fatPctMin = 0.20; fatPctMax = 0.30;
+  } else {
+    kcalMin = base*0.92; kcalMax = base*0.98; proteinMult = 2.0; fatPctMin = 0.20; fatPctMax = 0.28;
+  }
+  const kcalMinR = Math.round(kcalMin/10)*10;
+  const kcalMaxR = Math.round(kcalMax/10)*10;
+  const proteinMin = Math.round(weight*proteinMult);
+  const fatMin = Math.round(kcalMinR*fatPctMin/9);
+  const fatMax = Math.round(kcalMaxR*fatPctMax/9);
+  const carbsMin = Math.max(0, Math.round((kcalMinR - proteinMin*4 - fatMax*9)/4));
+  const carbsMax = Math.max(carbsMin, Math.round((kcalMaxR - proteinMin*4 - fatMin*9)/4));
+  return { kcalMin: kcalMinR, kcalMax: kcalMaxR, proteinMin, fatMin, fatMax, carbsMin, carbsMax };
+}
+
+function renderTargetPill(){
+  document.getElementById('targetPill').innerHTML = `
+    <span>训练目标 <b>${GOAL_LABELS[userGoal]}</b>（体重 ${userWeight}kg）</span>
+    <span>热量 <b>${TARGETS.kcalMin} – ${TARGETS.kcalMax}</b> kcal</span>
+    <span>蛋白质 <b>≥ ${TARGETS.proteinMin}</b> g</span>
+    <span>碳水 <b>${TARGETS.carbsMin} – ${TARGETS.carbsMax}</b> g</span>
+    <span>脂肪 <b>${TARGETS.fatMin} – ${TARGETS.fatMax}</b> g</span>
+  `;
+}
+
+/* ============ HELPERS ============ */
+function calcDayTotals(day){
+  let kcal=0, protein=0, carbs=0, fat=0;
+  currentGrams[day].forEach(group=>{
+    group.items.forEach(([food, grams])=>{
+      const db = FOOD_DB[food];
+      kcal += db.kcal * grams/100;
+      protein += db.protein * grams/100;
+      carbs += db.carbs * grams/100;
+      fat += db.fat * grams/100;
+    });
+  });
+  return {
+    kcal: Math.round(kcal),
+    protein: Math.round(protein*10)/10,
+    carbs: Math.round(carbs*10)/10,
+    fat: Math.round(fat*10)/10,
+  };
+}
+function checkMacro(t){
+  return {
+    kcal: t.kcal >= TARGETS.kcalMin && t.kcal <= TARGETS.kcalMax,
+    protein: t.protein >= TARGETS.proteinMin,
+    carbs: t.carbs >= TARGETS.carbsMin && t.carbs <= TARGETS.carbsMax,
+    fat: t.fat >= TARGETS.fatMin && t.fat <= TARGETS.fatMax,
+  };
+}
+function statusFor(t){
+  const c = checkMacro(t);
+  return c.kcal && c.protein && c.carbs && c.fat;
+}
+
+/* ============ TABS ============ */
+const tabButtons = document.querySelectorAll('#tabNav button');
+tabButtons.forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    tabButtons.forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('section.panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById('panel-'+btn.dataset.panel).classList.add('active');
+    if(btn.dataset.panel === 'overview') renderOverview();
+  });
+});
+
+/* ============ SETTINGS (weight / goal) ============ */
+document.getElementById('goalToggle').querySelectorAll('button').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    document.getElementById('goalToggle').querySelectorAll('button').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+  });
+});
+
+function applySettings(){
+  const w = parseFloat(document.getElementById('weightInput').value);
+  userWeight = (isNaN(w) || w<=0) ? userWeight : w;
+  document.getElementById('weightInput').value = userWeight;
+  userGoal = document.getElementById('goalToggle').querySelector('button.active').dataset.goal;
+  TARGETS = computeTargets(userWeight, userGoal);
+  renderTargetPill();
+  document.getElementById('settingsResult').innerHTML =
+    `已按 <b>${GOAL_LABELS[userGoal]}</b> 目标（体重 ${userWeight}kg）重新计算：热量 <b>${TARGETS.kcalMin}–${TARGETS.kcalMax}</b> kcal ·
+     蛋白质 <b>≥${TARGETS.proteinMin}</b> g · 碳水 <b>${TARGETS.carbsMin}–${TARGETS.carbsMax}</b> g · 脂肪 <b>${TARGETS.fatMin}–${TARGETS.fatMax}</b> g
+     （估算值，仅供参考，非医学建议）`;
+  renderCalc();
+  renderOverview();
+}
+document.getElementById('applySettingsBtn').addEventListener('click', applySettings);
+
+/* ============ DONUT CHART (calorie source) ============ */
+function renderDonut(t){
+  const pKcal = t.protein*4, cKcal = t.carbs*4, fKcal = t.fat*9;
+  const total = pKcal + cKcal + fKcal || 1;
+  const pPct = pKcal/total*100, cPct = cKcal/total*100, fPct = fKcal/total*100;
+  const c1 = pPct;
+  const c2 = pPct + cPct;
+  const gradient = `conic-gradient(var(--gold) 0% ${c1}%, var(--carb) ${c1}% ${c2}%, var(--fat) ${c2}% 100%)`;
+
+  const row = document.getElementById('donutRow');
+  row.innerHTML = `
+    <div class="donut" style="background:${gradient}">
+      <div class="donut-center">
+        <div class="v">${t.kcal}</div>
+        <div class="k">kcal</div>
+      </div>
+    </div>
+    <div class="donut-legend">
+      <div class="dl-item"><i class="dl-swatch" style="background:var(--gold)"></i>蛋白质 (${t.protein}g)<b>${Math.round(pPct)}%</b></div>
+      <div class="dl-item"><i class="dl-swatch" style="background:var(--carb)"></i>碳水 (${t.carbs}g)<b>${Math.round(cPct)}%</b></div>
+      <div class="dl-item"><i class="dl-swatch" style="background:var(--fat)"></i>脂肪 (${t.fat}g)<b>${Math.round(fPct)}%</b></div>
+    </div>
+  `;
+}
+
+/* ============ OVERVIEW ============ */
+function renderOverview(){
+  const strip = document.getElementById('weekStrip');
+  strip.innerHTML = '';
+  const totals = DAYS.map(calcDayTotals);
+  const maxKcal = Math.max(...totals.map(t=>t.kcal), TARGETS.kcalMax) * 1.05;
+
+  // target band
+  const bandTop = 100 - (TARGETS.kcalMax/maxKcal*100);
+  const bandBottom = 100 - (TARGETS.kcalMin/maxKcal*100);
+  const band = document.createElement('div');
+  band.className = 'target-band';
+  band.style.top = bandTop+'%';
+  band.style.height = (bandBottom-bandTop)+'%';
+  strip.appendChild(band);
+
+  DAYS.forEach((day,i)=>{
+    const t = totals[i];
+    const ok = statusFor(t);
+    const col = document.createElement('div');
+    col.className = 'day-col';
+    const kcalH = Math.max(6, t.kcal/maxKcal*190);
+    const proteinH = Math.max(6, (t.protein*10)/maxKcal*190);
+    const carbsH = Math.max(6, (t.carbs*10)/maxKcal*190);
+    const fatH = Math.max(6, (t.fat*10)/maxKcal*190);
+    col.innerHTML = `
+      <span class="day-status">${ok?'✅':'⚠️'}</span>
+      <div class="bar-pair">
+        <div class="bar kcal" style="height:${kcalH}px" title="${t.kcal} kcal"></div>
+        <div class="bar protein" style="height:${proteinH}px" title="${t.protein} g 蛋白质"></div>
+        <div class="bar carbs" style="height:${carbsH}px" title="${t.carbs} g 碳水"></div>
+        <div class="bar fat" style="height:${fatH}px" title="${t.fat} g 脂肪"></div>
+      </div>
+      <div class="day-label">${day.replace('星期','周')}</div>
+    `;
+    strip.appendChild(col);
+  });
+
+  const avgKcal = Math.round(totals.reduce((a,t)=>a+t.kcal,0)/7);
+  const avgProtein = Math.round(totals.reduce((a,t)=>a+t.protein,0)/7*10)/10;
+  const avgCarbs = Math.round(totals.reduce((a,t)=>a+t.carbs,0)/7*10)/10;
+  const avgFat = Math.round(totals.reduce((a,t)=>a+t.fat,0)/7*10)/10;
+  const onTargetDays = totals.filter(t=>statusFor(t)).length;
+
+  document.getElementById('weekStats').innerHTML = `
+    <div class="stat"><div class="k">周平均热量</div><div class="v num">${avgKcal} kcal</div></div>
+    <div class="stat"><div class="k">周平均蛋白质</div><div class="v num">${avgProtein} g</div></div>
+    <div class="stat"><div class="k">周平均碳水</div><div class="v num">${avgCarbs} g</div></div>
+    <div class="stat"><div class="k">周平均脂肪</div><div class="v num">${avgFat} g</div></div>
+    <div class="stat"><div class="k">四项全达标天数</div><div class="v num">${onTargetDays} / 7</div></div>
+    <div class="stat"><div class="k">目标热量区间</div><div class="v num">${TARGETS.kcalMin}–${TARGETS.kcalMax} kcal</div></div>
+  `;
+}
+
+/* ============ CALCULATOR ============ */
+let currentDay = "星期一";
+
+function renderDayChips(){
+  const wrap = document.getElementById('dayChips');
+  wrap.innerHTML='';
+  DAYS.forEach(day=>{
+    const b = document.createElement('button');
+    b.textContent = day;
+    if(day===currentDay) b.classList.add('active');
+    b.addEventListener('click', ()=>{ currentDay = day; renderDayChips(); renderCalc(); });
+    wrap.appendChild(b);
+  });
+}
+
+function renderCalc(){
+  const tbody = document.getElementById('mealTableBody');
+  tbody.innerHTML = '';
+  currentGrams[currentDay].forEach((group, gi)=>{
+    const headerRow = document.createElement('tr');
+    headerRow.className = 'meal-header';
+    headerRow.innerHTML = `<td colspan="7">${group.meal}</td>`;
+    tbody.appendChild(headerRow);
+
+    group.items.forEach(([food, grams], ii)=>{
+      const db = FOOD_DB[food];
+      const kcal = Math.round(db.kcal*grams/100);
+      const protein = Math.round(db.protein*grams/100*10)/10;
+      const carbs = Math.round(db.carbs*grams/100*10)/10;
+      const fat = Math.round(db.fat*grams/100*10)/10;
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td></td>
+        <td>${food}</td>
+        <td><input class="grams-input num" type="number" min="0" step="1" value="${grams}" data-gi="${gi}" data-ii="${ii}"></td>
+        <td class="num">${kcal} kcal</td>
+        <td class="num">${protein} g</td>
+        <td class="num">${carbs} g</td>
+        <td class="num">${fat} g</td>
+      `;
+      tbody.appendChild(row);
+    });
+  });
+
+  tbody.querySelectorAll('.grams-input').forEach(inp=>{
+    inp.addEventListener('input', e=>{
+      const gi = +e.target.dataset.gi, ii = +e.target.dataset.ii;
+      let val = parseFloat(e.target.value);
+      if(isNaN(val) || val<0) val = 0;
+      currentGrams[currentDay][gi].items[ii][1] = val;
+      renderCalc();
+    });
+  });
+
+  const t = calcDayTotals(currentDay);
+  const c = checkMacro(t);
+  document.getElementById('totalsBar').innerHTML = `
+    <div class="tb-item"><span class="k">${currentDay} 总热量</span><span class="v num">${t.kcal} kcal</span><span class="t">目标 ${TARGETS.kcalMin}–${TARGETS.kcalMax}</span></div>
+    <div class="tb-item"><span class="k">总蛋白质</span><span class="v num">${t.protein} g</span><span class="t">目标 ≥${TARGETS.proteinMin}</span></div>
+    <div class="tb-item"><span class="k">总碳水</span><span class="v num">${t.carbs} g</span><span class="t">目标 ${TARGETS.carbsMin}–${TARGETS.carbsMax}</span></div>
+    <div class="tb-item"><span class="k">总脂肪</span><span class="v num">${t.fat} g</span><span class="t">目标 ${TARGETS.fatMin}–${TARGETS.fatMax}</span></div>
+    <div class="badges-wrap">
+      <div class="badge ${c.kcal && c.protein ? 'good':'warn'}">${c.kcal?'✅':'⚠️'} 热量　${c.protein?'✅':'⚠️'} 蛋白质</div>
+      <div class="badge ${c.carbs && c.fat ? 'good':'warn'}">${c.carbs?'✅':'⚠️'} 碳水　${c.fat?'✅':'⚠️'} 脂肪</div>
+    </div>
+  `;
+  renderDonut(t);
+}
+
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  currentGrams[currentDay] = JSON.parse(JSON.stringify(WEEK_PLAN[currentDay]));
+  renderCalc();
+});
+
+/* ============ WEEK PLAN TABLE ============ */
+function renderWeekPlanTable(){
+  const table = document.getElementById('weekPlanTable');
+  let html = '<thead><tr><th>📅 一周饮食计划</th>' + DAYS.map(d=>`<th>${d}</th>`).join('') + '</tr></thead><tbody>';
+  WEEK_SUMMARY_TABLE.rows.slice(1).forEach(rowKey=>{
+    html += `<tr><td class="row-label">${rowKey}</td>`;
+    WEEK_SUMMARY_TABLE.data[rowKey].forEach(val=>{
+      html += `<td>${val}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody>';
+  table.innerHTML = html;
+}
+
+/* ============ FOODS ============ */
+function renderFoods(){
+  const grid = document.getElementById('foodsGoodGrid');
+  grid.innerHTML = '';
+  FOODS_GOOD.forEach(group=>{
+    const div = document.createElement('div');
+    div.className = 'food-group';
+    div.innerHTML = `<h3>${group.title}</h3><ul>${group.items.map(i=>`<li>${i}</li>`).join('')}</ul>${group.note?`<div class="note">${group.note}</div>`:''}`;
+    grid.appendChild(div);
+  });
+  document.getElementById('avoidList').innerHTML = FOODS_AVOID.map(f=>`<span>${f}</span>`).join('');
+}
+
+/* ============ GOALS ============ */
+function renderGoals(){
+  const table = document.getElementById('goalTable');
+  table.innerHTML = '<tr><td>食物</td><td>建议</td></tr>' + GOALS.map(([a,b])=>`<tr><td>${a}</td><td>${b}</td></tr>`).join('');
+  document.getElementById('exerciseRow').innerHTML = EXERCISE.map(e=>`
+    <div class="icon-card"><div class="label">${e.label}</div><div class="value">${e.value}</div></div>
+  `).join('');
+}
+
+/* ============ DB ============ */
+function renderDB(filter=''){
+  const tbody = document.getElementById('dbTableBody');
+  const f = filter.trim().toLowerCase();
+  tbody.innerHTML = Object.entries(FOOD_DB)
+    .filter(([name])=> name.toLowerCase().includes(f))
+    .map(([name, d])=>`<tr><td>${name}</td><td>${d.desc}</td><td class="mono num">${d.kcal}</td><td class="mono num">${d.protein}</td><td class="mono num">${d.carbs}</td><td class="mono num">${d.fat}</td></tr>`)
+    .join('');
+}
+document.getElementById('dbSearch').addEventListener('input', e=>renderDB(e.target.value));
+
+/* ============ INIT ============ */
+renderTargetPill();
+renderOverview();
+renderDayChips();
+renderCalc();
+renderWeekPlanTable();
+renderFoods();
+renderGoals();
+renderDB();
+</script>
+</body>
+</html>
