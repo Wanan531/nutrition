@@ -453,6 +453,57 @@
   /* ===== History ===== */
   .history-section{margin-top:32px; border-top:1px solid var(--line); padding-top:26px;}
   .history-section .section-title{font-size:15px; margin-bottom:16px;}
+
+  /* ===== Goal card ===== */
+  .goal-card{
+    background:var(--panel-sunken);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:16px 18px;
+    margin-bottom:16px;
+  }
+  .goal-form{display:flex; gap:8px; flex-wrap:wrap; align-items:stretch;}
+  .goal-form input[type="number"]{flex:1 1 140px;}
+  .goal-form .segmented{flex:1 1 220px;}
+  .goal-form .btn{flex:0 0 auto;}
+  .goal-progress{
+    margin-top:16px;
+    padding-top:16px;
+    border-top:1px dashed var(--line);
+    animation:fadeUp 0.4s ease;
+  }
+  .goal-stats-row{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:18px;
+    flex-wrap:wrap;
+    margin-bottom:14px;
+  }
+  .goal-stat{text-align:center;}
+  .gs-label{font-family:'Oswald',sans-serif; font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:4px;}
+  .gs-val{font-family:'JetBrains Mono',monospace; font-size:20px; font-weight:700; color:var(--text);}
+  .gs-val .gs-unit{font-size:11px; color:var(--text-faint); font-weight:500; margin-left:2px;}
+  .goal-arrow{color:var(--text-faint); font-size:18px;}
+  .goal-rate-row{
+    display:flex; align-items:center; justify-content:space-between;
+    flex-wrap:wrap; gap:8px; margin-bottom:12px;
+  }
+  .goal-rate-label{font-family:'Oswald',sans-serif; font-size:12.5px; letter-spacing:0.03em; color:var(--text-dim); text-transform:uppercase;}
+  .goal-rate-badge{
+    font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:700;
+    padding:4px 14px; border-radius:20px;
+  }
+  .goal-rate-badge.on-track{background:var(--protein-dim); color:var(--protein);}
+  .goal-rate-badge.too-fast{background:var(--fat-dim); color:var(--fat);}
+  .goal-rate-badge.too-slow{background:var(--carb-dim); color:var(--carb);}
+  .goal-rate-badge.neutral{background:var(--panel-raised); color:var(--text-faint); border:1px solid var(--line);}
+  .goal-suggestion{
+    font-size:13px; line-height:1.6; color:var(--text-dim);
+    background:var(--panel-raised); border-radius:10px; padding:12px 14px;
+    border:1px solid var(--line-soft);
+  }
+
   .history-form{display:flex; gap:10px; flex-wrap:wrap; align-items:stretch; margin-bottom:16px;}
   .history-form input{flex:1 1 130px;}
   .history-form .btn{flex:0 0 auto; padding:0 22px;}
@@ -680,7 +731,43 @@
     </div>
 
     <div class="history-section">
-      <div class="section-title">体重历史趋势</div>
+      <div class="section-title">体重历史趋势 <span class="note">含 7 天均线</span></div>
+
+      <div class="goal-card">
+        <div class="goal-form">
+          <input type="number" id="targetWeight" placeholder="目标体重 (kg)" step="0.1" min="20" max="200">
+          <div class="segmented" id="goalModeToggle">
+            <button type="button" class="seg-btn active" data-value="cut">减脂</button>
+            <button type="button" class="seg-btn" data-value="bulk">增肌</button>
+            <button type="button" class="seg-btn" data-value="maintain">维持</button>
+          </div>
+          <input type="hidden" id="goalMode" value="cut">
+          <button type="button" class="btn btn-outline btn-sm" id="saveGoalBtn">保存目标</button>
+        </div>
+        <div class="goal-progress" id="goalProgress" style="display:none;">
+          <div class="goal-stats-row">
+            <div class="goal-stat">
+              <div class="gs-label">当前</div>
+              <div class="gs-val" id="goalCurrentWeight">--<span class="gs-unit">kg</span></div>
+            </div>
+            <div class="goal-arrow">→</div>
+            <div class="goal-stat">
+              <div class="gs-label">目标</div>
+              <div class="gs-val" id="goalTargetWeight">--<span class="gs-unit">kg</span></div>
+            </div>
+            <div class="goal-stat">
+              <div class="gs-label">差值</div>
+              <div class="gs-val" id="goalDiff">--<span class="gs-unit">kg</span></div>
+            </div>
+          </div>
+          <div class="goal-rate-row">
+            <span class="goal-rate-label">近期变化速度</span>
+            <span class="goal-rate-badge" id="goalRateBadge">--</span>
+          </div>
+          <div class="goal-suggestion" id="goalSuggestion">记录至少 2 条相隔数天的体重后，将显示趋势建议</div>
+        </div>
+      </div>
+
       <div class="history-form">
         <input type="date" id="historyDate">
         <input type="number" id="historyWeight" placeholder="体重 (kg)" step="0.1" min="20" max="200">
@@ -702,13 +789,14 @@
 // ============================================================
 const CUSTOM_FOODS_KEY = 'custom_foods';
 const HISTORY_KEY = 'weight_history';
+const GOAL_KEY = 'weight_goal';
 
-async function storageGet(key){
+async function storageGet(key, defaultValue = []){
   try{
     const res = await window.storage.get(key, false);
-    return res ? JSON.parse(res.value) : [];
+    return res ? JSON.parse(res.value) : defaultValue;
   }catch(e){
-    return [];
+    return defaultValue;
   }
 }
 async function storageSet(key, value){
@@ -723,6 +811,7 @@ async function storageSet(key, value){
 
 let customFoodsCache = [];
 let historyCache = [];
+let goalCache = { targetWeight: null, mode: 'cut' };
 
 // ============================================================
 // 核心计算数据
@@ -785,6 +874,13 @@ document.querySelectorAll('#genderToggle .seg-btn').forEach(btn=>{
     document.querySelectorAll('#genderToggle .seg-btn').forEach(b=>b.classList.remove('active'));
     this.classList.add('active');
     genderValueInput.value = this.dataset.value;
+  });
+});
+document.querySelectorAll('#goalModeToggle .seg-btn').forEach(btn=>{
+  btn.addEventListener('click', function(){
+    document.querySelectorAll('#goalModeToggle .seg-btn').forEach(b=>b.classList.remove('active'));
+    this.classList.add('active');
+    document.getElementById('goalMode').value = this.dataset.value;
   });
 });
 
@@ -993,6 +1089,15 @@ document.getElementById('toggleCustomPanel').addEventListener('click', function(
 // ============================================================
 let weightChart = null;
 
+function movingAverage(values, windowSize){
+  return values.map((_, idx)=>{
+    const start = Math.max(0, idx - windowSize + 1);
+    const slice = values.slice(start, idx+1);
+    const sum = slice.reduce((a,b)=>a+b, 0);
+    return +(sum/slice.length).toFixed(2);
+  });
+}
+
 async function addHistoryRecord(date, weight){
   if(!date || !weight || isNaN(weight) || weight<=0){ alert('请填写有效的日期和体重'); return false; }
   const existingIndex = historyCache.findIndex(item=>item.date===date);
@@ -1039,15 +1144,24 @@ function renderChartAndList(){
   const displayData = historyCache.slice(-30);
   const labels = displayData.map(item=>item.date);
   const weights = displayData.map(item=>item.weight);
+  const avgWeights = movingAverage(weights, 7);
 
   weightChart = new Chart(ctx, {
     type:'line',
-    data:{ labels, datasets:[{
-      label:'体重 (kg)', data:weights,
-      borderColor:'#5b8def', backgroundColor:'rgba(91,141,239,0.12)',
-      borderWidth:3, tension:0.25,
-      pointBackgroundColor:'#0d1620', pointBorderColor:'#5b8def', pointBorderWidth:2, pointRadius:4, fill:true
-    }]},
+    data:{ labels, datasets:[
+      {
+        label:'体重 (kg)', data:weights,
+        borderColor:'#5b8def', backgroundColor:'rgba(91,141,239,0.12)',
+        borderWidth:2, tension:0.25,
+        pointBackgroundColor:'#0d1620', pointBorderColor:'#5b8def', pointBorderWidth:2, pointRadius:3, fill:true
+      },
+      {
+        label:'7天均线', data:avgWeights,
+        borderColor:'#2bd9c4', backgroundColor:'transparent',
+        borderWidth:2, borderDash:[6,4], tension:0.3,
+        pointRadius:0, fill:false
+      }
+    ]},
     options:{
       responsive:true, maintainAspectRatio:true,
       plugins:{
@@ -1070,7 +1184,96 @@ function renderChartAndList(){
       <button class="btn-danger" onclick="deleteHistoryRecord(${originalIndex})">删除</button>
     </div>`;
   }).join('');
+
+  renderGoalProgress();
 }
+
+// ============================================================
+// 目标体重模式：趋势计算与建议
+// ============================================================
+function getRecentWeeklyRate(history){
+  if(history.length < 2) return null;
+  const sorted = [...history].sort((a,b)=> new Date(a.date) - new Date(b.date));
+  const latestDate = new Date(sorted[sorted.length-1].date);
+  const cutoff = new Date(latestDate);
+  cutoff.setDate(cutoff.getDate() - 14);
+  const recent = sorted.filter(item => new Date(item.date) >= cutoff);
+  if(recent.length < 2) return null;
+  const first = recent[0], last = recent[recent.length-1];
+  const days = (new Date(last.date) - new Date(first.date)) / (1000*60*60*24);
+  if(days < 3) return null;
+  return (last.weight - first.weight) / (days/7); // kg/周
+}
+
+function buildSuggestion(mode, weeklyRate){
+  const r = Math.round(weeklyRate*100)/100;
+  if(mode === 'cut'){
+    if(weeklyRate > -0.2) return { badge:'too-slow', text:`下降偏慢（${r} kg/周），建议每日碳水再减少约 20–30g，或总热量降低 150–200 kcal` };
+    if(weeklyRate < -1.0) return { badge:'too-fast', text:`下降过快（${r} kg/周），可能伴随肌肉流失，建议每日增加碳水约 20–30g` };
+    return { badge:'on-track', text:`下降速度在合理区间内（${r} kg/周），保持当前安排即可` };
+  }
+  if(mode === 'bulk'){
+    if(weeklyRate < 0.15) return { badge:'too-slow', text:`增重偏慢（${r} kg/周），建议每日碳水再增加约 20–30g` };
+    if(weeklyRate > 0.6) return { badge:'too-fast', text:`增重偏快（${r} kg/周），脂肪增加风险较高，建议每日碳水减少约 20–30g` };
+    return { badge:'on-track', text:`增重速度在合理区间内（${r} kg/周），保持当前安排即可` };
+  }
+  // maintain
+  if(Math.abs(weeklyRate) > 0.3) return { badge:'too-fast', text:`体重偏离维持区间（${r} kg/周），建议根据方向微调每日碳水 15–20g` };
+  return { badge:'on-track', text:`体重基本稳定（${r} kg/周），维持得不错` };
+}
+
+async function renderGoalProgress(){
+  const panel = document.getElementById('goalProgress');
+  if(!goalCache.targetWeight){
+    panel.style.display = 'none';
+    return;
+  }
+  panel.style.display = 'block';
+
+  const currentWeight = historyCache.length
+    ? historyCache[historyCache.length-1].weight
+    : parseFloat(weightInput.value) || null;
+
+  document.getElementById('goalCurrentWeight').innerHTML = (currentWeight ?? '--') + '<span class="gs-unit">kg</span>';
+  document.getElementById('goalTargetWeight').innerHTML = goalCache.targetWeight + '<span class="gs-unit">kg</span>';
+
+  const suggestionEl = document.getElementById('goalSuggestion');
+  const badgeEl = document.getElementById('goalRateBadge');
+
+  if(currentWeight == null){
+    document.getElementById('goalDiff').innerHTML = '--<span class="gs-unit">kg</span>';
+    badgeEl.textContent = '--';
+    badgeEl.className = 'goal-rate-badge neutral';
+    suggestionEl.textContent = '记录体重后可查看差值与趋势建议';
+    return;
+  }
+
+  const diff = Math.round((goalCache.targetWeight - currentWeight)*10)/10;
+  document.getElementById('goalDiff').innerHTML = (diff>0?'+':'') + diff + '<span class="gs-unit">kg</span>';
+
+  const weeklyRate = getRecentWeeklyRate(historyCache);
+  if(weeklyRate == null){
+    badgeEl.textContent = '数据不足';
+    badgeEl.className = 'goal-rate-badge neutral';
+    suggestionEl.textContent = '记录至少 2 条相隔数天的体重后，将显示趋势建议';
+    return;
+  }
+
+  const { badge, text } = buildSuggestion(goalCache.mode, weeklyRate);
+  const badgeLabelMap = { 'on-track':'节奏正常', 'too-fast':'偏快', 'too-slow':'偏慢' };
+  badgeEl.textContent = `${weeklyRate>0?'+':''}${Math.round(weeklyRate*100)/100} kg/周 · ${badgeLabelMap[badge]}`;
+  badgeEl.className = 'goal-rate-badge ' + badge;
+  suggestionEl.textContent = text;
+}
+
+document.getElementById('saveGoalBtn').addEventListener('click', async function(){
+  const targetWeight = parseFloat(document.getElementById('targetWeight').value);
+  if(isNaN(targetWeight) || targetWeight <= 0){ alert('请输入有效的目标体重 (公斤)'); return; }
+  const mode = document.getElementById('goalMode').value;
+  goalCache = { targetWeight, mode };
+  await storageSet(GOAL_KEY, goalCache);
+  renderGoalProgress();
+});
 
 document.getElementById('saveHistoryBtn').addEventListener('click', async function(){
   const dateInput = document.getElementById('historyDate');
@@ -1097,9 +1300,18 @@ async function init(){
   try{
     customFoodsCache = await storageGet(CUSTOM_FOODS_KEY);
     historyCache = await storageGet(HISTORY_KEY);
+    goalCache = await storageGet(GOAL_KEY, { targetWeight: null, mode: 'cut' });
     storageBadge.textContent = '数据已同步';
   }catch(e){
     storageBadge.textContent = '本地模式';
+  }
+
+  if(goalCache.targetWeight){
+    document.getElementById('targetWeight').value = goalCache.targetWeight;
+    document.querySelectorAll('#goalModeToggle .seg-btn').forEach(b=>{
+      b.classList.toggle('active', b.dataset.value === goalCache.mode);
+    });
+    document.getElementById('goalMode').value = goalCache.mode;
   }
 
   renderCustomFoodList();
