@@ -37,10 +37,11 @@
       radial-gradient(ellipse 700px 500px at 105% 10%, #1a1530 0%, transparent 55%),
       var(--bg);
     min-height:100vh;
-    padding:32px 16px 60px;
+    padding:16px 8px 40px;
     display:flex;
     justify-content:center;
     color:var(--text);
+    -webkit-tap-highlight-color:transparent;
   }
   .mono{font-family:'JetBrains Mono',monospace;}
   .display{font-family:'Oswald',sans-serif;}
@@ -50,9 +51,9 @@
     width:100%;
     background:linear-gradient(180deg, var(--panel) 0%, var(--panel-sunken) 100%);
     border:1px solid var(--line);
-    border-radius:20px;
+    border-radius:16px;
     padding:0;
-    box-shadow:0 40px 80px -30px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.03);
+    box-shadow:0 24px 50px -20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.03);
     overflow:hidden;
     position:relative;
   }
@@ -69,32 +70,32 @@
 
   /* ===== Header strip ===== */
   .console-head{
-    padding:22px 28px 18px;
+    padding:18px 18px 14px;
     border-bottom:1px solid var(--line);
     position:relative;
     display:flex;
+    flex-direction:column;
     align-items:flex-start;
-    justify-content:space-between;
-    gap:16px;
+    gap:10px;
   }
   .head-title{
     font-family:'Oswald',sans-serif;
-    font-size:15px;
-    letter-spacing:0.18em;
+    font-size:12px;
+    letter-spacing:0.16em;
     text-transform:uppercase;
     color:var(--text-faint);
     font-weight:500;
-    margin-bottom:6px;
+    margin-bottom:4px;
   }
   .head-name{
     font-family:'Oswald',sans-serif;
-    font-size:30px;
+    font-size:23px;
     font-weight:700;
     letter-spacing:0.01em;
     color:var(--text);
     display:flex;
     align-items:center;
-    gap:10px;
+    gap:9px;
   }
   .live-dot{
     width:8px;height:8px;border-radius:50%;
@@ -108,10 +109,10 @@
     50%{opacity:0.35;}
   }
   .head-sub{
-    font-size:13px;
+    font-size:12.5px;
     color:var(--text-dim);
     margin-top:2px;
-    max-width:320px;
+    max-width:100%;
     line-height:1.5;
   }
   .head-badge{
@@ -124,23 +125,25 @@
     border-radius:20px;
     white-space:nowrap;
     letter-spacing:0.03em;
+    align-self:flex-start;
   }
 
-  .body-pad{padding:26px 28px 32px; position:relative;}
+  .body-pad{padding:18px 16px 26px; position:relative;}
 
   /* ===== Form ===== */
-  .form-group{margin-bottom:20px;}
+  .form-group{margin-bottom:18px;}
   .fg-label{
     display:flex;
     align-items:center;
     gap:8px;
     font-family:'Oswald',sans-serif;
-    font-size:13px;
+    font-size:12.5px;
     letter-spacing:0.06em;
     text-transform:uppercase;
     color:var(--text-dim);
     font-weight:500;
-    margin-bottom:10px;
+    margin-bottom:9px;
+    flex-wrap:wrap;
   }
   .fg-label .hint{
     text-transform:none;
@@ -148,7 +151,7 @@
     font-family:'Inter',sans-serif;
     font-weight:400;
     color:var(--text-faint);
-    font-size:12px;
+    font-size:11.5px;
   }
 
   .segmented{
@@ -161,11 +164,12 @@
   }
   .seg-btn{
     flex:1;
-    padding:11px 0;
+    padding:12px 0;
+    min-height:44px;
     text-align:center;
     font-family:'Oswald',sans-serif;
     font-weight:500;
-    font-size:14.5px;
+    font-size:14px;
     letter-spacing:0.02em;
     border:none;
     border-radius:10px;
@@ -185,6 +189,7 @@
   input[type="number"], select, input[type="text"], input[type="date"]{
     width:100%;
     padding:13px 16px;
+    min-height:48px;
     font-family:'JetBrains Mono',monospace;
     font-size:16px;
     font-weight:500;
@@ -204,9 +209,10 @@
 
   .btn{
     width:100%;
-    padding:16px;
+    padding:15px;
+    min-height:50px;
     font-family:'Oswald',sans-serif;
-    font-size:16px;
+    font-size:15px;
     font-weight:600;
     letter-spacing:0.03em;
     text-transform:uppercase;
@@ -232,7 +238,8 @@
     background:none;
     border:1px solid #ff5c7244;
     color:var(--danger);
-    padding:6px 12px;
+    padding:8px 12px;
+    min-height:36px;
     font-size:12px;
     width:auto;
     margin:0;
@@ -250,51 +257,50 @@
 
   .rings-section{
     margin-top:8px;
-    padding:24px 20px 8px;
+    padding:20px 12px 6px;
     background:var(--panel-sunken);
     border:1px solid var(--line);
     border-radius:16px;
   }
   .rings-row{
     display:flex;
-    justify-content:space-around;
-    align-items:center;
-    flex-wrap:wrap;
-    gap:14px;
-  }
-  .ring-item{display:flex; flex-direction:column; align-items:center; gap:10px;}
-  .ring-num{font-family:'JetBrains Mono',monospace; font-size:22px; font-weight:700;}
-  .ring-unit{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-faint); margin-top:-6px;}
-  .ring-label{font-family:'Oswald',sans-serif; font-size:12px; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-dim);}
-  .ring-pct{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-faint);}
-
-  .total-strip{
-    margin-top:20px;
-    display:flex;
     justify-content:space-between;
     align-items:center;
-    flex-wrap:wrap;
-    gap:8px;
-    padding:16px 4px 4px;
+    flex-wrap:nowrap;
+    gap:6px;
+  }
+  .ring-item{display:flex; flex-direction:column; align-items:center; gap:8px; flex:1; min-width:0;}
+  .ring-item svg{width:68px; height:68px;}
+  .ring-num{font-family:'JetBrains Mono',monospace; font-size:18px; font-weight:700;}
+  .ring-unit{font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-faint); margin-top:-5px;}
+  .ring-label{font-family:'Oswald',sans-serif; font-size:11px; letter-spacing:0.05em; text-transform:uppercase; color:var(--text-dim);}
+  .ring-pct{font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--text-faint);}
+
+  .total-strip{
+    margin-top:18px;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:6px;
+    padding:14px 4px 4px;
     border-top:1px dashed var(--line);
   }
-  .total-strip .tl{font-family:'Oswald',sans-serif; font-size:13px; letter-spacing:0.05em; text-transform:uppercase; color:var(--text-dim);}
-  .total-strip .tv{font-family:'JetBrains Mono',monospace; font-size:24px; font-weight:700; color:var(--text);}
-  .total-strip .tv span{color:var(--text-faint); font-size:13px; font-weight:500;}
+  .total-strip .tl{font-family:'Oswald',sans-serif; font-size:12px; letter-spacing:0.05em; text-transform:uppercase; color:var(--text-dim);}
+  .total-strip .tv{font-family:'JetBrains Mono',monospace; font-size:22px; font-weight:700; color:var(--text);}
+  .total-strip .tv span{color:var(--text-faint); font-size:12.5px; font-weight:500;}
 
   /* ===== Meal plan ===== */
-  .meal-plan{margin-top:18px;}
+  .meal-plan{margin-top:16px;}
   .section-title{
     font-family:'Oswald',sans-serif;
-    font-size:14px;
+    font-size:13.5px;
     letter-spacing:0.05em;
     text-transform:uppercase;
     color:var(--text-dim);
     font-weight:500;
     display:flex;
-    justify-content:space-between;
-    align-items:center;
-    flex-wrap:wrap;
+    flex-direction:column;
+    align-items:flex-start;
     gap:8px;
     margin-bottom:12px;
   }
@@ -302,7 +308,7 @@
     text-transform:none;
     letter-spacing:0;
     font-family:'Inter',sans-serif;
-    font-size:12px;
+    font-size:11.5px;
     color:var(--text-faint);
   }
   .day-tag{
@@ -320,32 +326,33 @@
     background:var(--panel-raised);
     border:1px solid var(--line);
     border-radius:14px;
-    padding:14px 18px;
+    padding:14px 16px;
     margin-bottom:10px;
-    display:grid;
-    grid-template-columns:96px 1fr 1fr 1fr;
+    display:flex;
+    flex-direction:column;
     gap:8px;
-    align-items:center;
   }
   .meal-card:last-child{margin-bottom:0;}
-  .meal-name{font-family:'Oswald',sans-serif; font-size:14px; font-weight:500; color:var(--text);}
-  .meal-val{font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:600;}
+  .meal-name{font-family:'Oswald',sans-serif; font-size:14px; font-weight:600; color:var(--text); letter-spacing:0.02em;}
+  .meal-macros{display:flex; flex-wrap:wrap; gap:6px 14px;}
+  .meal-val{font-family:'JetBrains Mono',monospace; font-size:13.5px; font-weight:600;}
   .meal-val.c{color:var(--carb);}
   .meal-val.p{color:var(--protein);}
   .meal-val.f{color:var(--fat);}
   .meal-val .u{color:var(--text-faint); font-weight:400; font-size:11px;}
 
   /* ===== Conversion ===== */
-  .conversion-section{margin-top:26px; border-top:1px solid var(--line); padding-top:22px;}
+  .conversion-section{margin-top:22px; border-top:1px solid var(--line); padding-top:20px;}
   .conv-tabs{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px;}
   .conv-tab{
-    padding:8px 16px;
+    padding:9px 15px;
+    min-height:40px;
     border-radius:20px;
     border:1px solid var(--line);
     background:var(--panel-sunken);
     font-family:'Oswald',sans-serif;
     font-weight:500;
-    font-size:12.5px;
+    font-size:12px;
     letter-spacing:0.03em;
     color:var(--text-dim);
     cursor:pointer;
@@ -359,7 +366,7 @@
     border:1px solid var(--line);
     border-left:3px solid var(--trend);
     border-radius:12px;
-    padding:14px 16px;
+    padding:14px 14px;
     margin-bottom:10px;
   }
   .conv-row.carbs{border-left-color:var(--carb);}
@@ -368,7 +375,7 @@
   .conv-label{
     font-family:'Oswald',sans-serif;
     font-weight:600;
-    font-size:13.5px;
+    font-size:13px;
     color:var(--text);
     display:block;
     margin-bottom:8px;
@@ -376,9 +383,9 @@
   .conv-items{display:flex; flex-wrap:wrap; gap:8px;}
   .conv-item{
     background:var(--panel-sunken);
-    padding:6px 12px;
+    padding:7px 12px;
     border-radius:16px;
-    font-size:12.5px;
+    font-size:12px;
     color:var(--text-dim);
     border:1px solid var(--line-soft);
   }
@@ -387,7 +394,7 @@
     background:#f2b64222;
     color:var(--carb);
     font-family:'JetBrains Mono',monospace;
-    font-size:9.5px;
+    font-size:9px;
     font-weight:700;
     padding:1px 8px;
     border-radius:20px;
@@ -400,72 +407,129 @@
     background:var(--panel-sunken);
     border:1px solid var(--line);
     border-radius:14px;
-    padding:14px 16px;
+    padding:14px 14px;
   }
   .toggle-panel-btn{
     background:none;
     border:none;
     font-family:'Oswald',sans-serif;
     font-weight:500;
-    font-size:13px;
+    font-size:12.5px;
     letter-spacing:0.03em;
     text-transform:uppercase;
     color:var(--text-dim);
     cursor:pointer;
     display:flex;
     align-items:center;
+    justify-content:space-between;
     gap:8px;
     width:100%;
+    min-height:36px;
     padding:2px 0;
   }
   .toggle-panel-btn:hover{color:var(--text);}
   .custom-food-panel{margin-top:14px; display:none;}
   .custom-food-panel.open{display:block;}
-  .custom-form{display:flex; flex-wrap:wrap; gap:8px; align-items:stretch; margin-bottom:14px;}
+  .custom-form{display:flex; flex-direction:column; gap:8px; margin-bottom:14px;}
   .custom-form input, .custom-form select{
-    flex:1 1 130px;
-    padding:10px 14px;
-    font-size:13px;
-    min-width:90px;
+    width:100%;
+    padding:12px 14px;
+    font-size:14px;
   }
-  .custom-form .btn{flex:0 0 auto;}
+  .custom-form .btn{width:100%;}
   .custom-list{max-height:150px; overflow-y:auto; display:flex; flex-wrap:wrap; gap:8px; padding:2px 0;}
   .custom-item{
     background:var(--panel-raised);
-    padding:5px 6px 5px 14px;
+    padding:6px 6px 6px 14px;
     border-radius:20px;
-    font-size:12.5px;
+    font-size:12px;
     color:var(--text);
     border:1px solid var(--line);
     display:flex;
     align-items:center;
     gap:8px;
   }
-  .custom-item .ci-info{color:var(--text-faint); font-family:'JetBrains Mono',monospace; font-size:11px;}
+  .custom-item .ci-info{color:var(--text-faint); font-family:'JetBrains Mono',monospace; font-size:10.5px;}
   .ci-del{
     background:none; border:none; color:var(--danger);
-    font-weight:700; font-size:15px; cursor:pointer;
-    padding:2px 6px; line-height:1; border-radius:50%;
+    font-weight:700; font-size:16px; cursor:pointer;
+    padding:4px 8px; line-height:1; border-radius:50%;
+    min-width:32px; min-height:32px;
   }
   .ci-del:hover{background:#ff5c7222;}
-  .custom-empty{color:var(--text-faint); font-size:12.5px; padding:6px 0;}
+  .custom-empty{color:var(--text-faint); font-size:12px; padding:6px 0;}
 
-  /* ===== History ===== */
-  .history-section{margin-top:32px; border-top:1px solid var(--line); padding-top:26px;}
-  .history-section .section-title{font-size:15px; margin-bottom:16px;}
+  /* ===== Supplement check-in ===== */
+  .supplement-section{margin-top:24px; border-top:1px solid var(--line); padding-top:22px;}
+  .supp-manager{margin-bottom:16px;}
+  .supp-form{display:flex; flex-direction:column; gap:8px;}
+  .supp-form input[type="text"]{width:100%;}
+  .supp-form .segmented{width:100%;}
+  .supp-form .btn{width:100%;}
+
+  .supp-progress-row{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:8px;
+    gap:8px;
+  }
+  .supp-date{font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--text-dim);}
+  .supp-progress-badge{
+    font-family:'JetBrains Mono',monospace; font-weight:700; font-size:12px;
+    padding:4px 14px; border-radius:20px;
+    background:var(--panel-raised); color:var(--text-dim); border:1px solid var(--line);
+    white-space:nowrap;
+  }
+  .supp-progress-badge.complete{background:var(--protein-dim); color:var(--protein); border-color:#2bd9c444;}
+
+  .supp-progress-bar-track{
+    height:6px; border-radius:10px; background:var(--panel-sunken);
+    border:1px solid var(--line); overflow:hidden; margin-bottom:16px;
+  }
+  .supp-progress-bar-fill{
+    height:100%; border-radius:10px; width:0%;
+    background:linear-gradient(90deg, var(--carb), var(--protein));
+    transition:width 0.4s ease;
+  }
+
+  .supp-checklist{display:flex; flex-direction:column; gap:12px;}
+  .supp-slot{background:var(--panel-raised); border:1px solid var(--line); border-radius:14px; padding:14px 14px;}
+  .supp-slot-title{
+    font-family:'Oswald',sans-serif; font-size:12px; letter-spacing:0.05em;
+    color:var(--text-dim); margin-bottom:10px;
+  }
+  .supp-items{display:flex; flex-direction:column; gap:8px;}
+  .supp-item{
+    display:flex; align-items:center; gap:10px;
+    background:var(--panel-sunken); border:1px solid var(--line-soft);
+    border-radius:10px; padding:10px 10px; min-height:44px; cursor:pointer; transition:background 0.15s, border-color 0.15s;
+  }
+  .supp-item.checked{background:var(--protein-dim); border-color:#2bd9c444;}
+  .supp-item input[type="checkbox"]{width:19px; height:19px; accent-color:var(--protein); flex-shrink:0; cursor:pointer;}
+  .supp-item-name{flex:1; font-size:13px; color:var(--text);}
+  .supp-item.checked .supp-item-name{color:var(--protein);}
+  .supp-item-del{
+    background:none; border:none; color:var(--danger); font-size:15px;
+    cursor:pointer; padding:4px 8px; border-radius:50%; line-height:1;
+    min-width:32px; min-height:32px;
+  }
+  .supp-item-del:hover{background:#ff5c7222;}
+  .supp-empty{color:var(--text-faint); font-size:12px; padding:4px 0;}
+
+  .history-section{margin-top:28px; border-top:1px solid var(--line); padding-top:22px;}
+  .history-section .section-title{font-size:14px; margin-bottom:16px;}
 
   /* ===== Goal card ===== */
   .goal-card{
     background:var(--panel-sunken);
     border:1px solid var(--line);
     border-radius:16px;
-    padding:16px 18px;
+    padding:16px 14px;
     margin-bottom:16px;
   }
-  .goal-form{display:flex; gap:8px; flex-wrap:wrap; align-items:stretch;}
-  .goal-form input[type="number"]{flex:1 1 140px;}
-  .goal-form .segmented{flex:1 1 220px;}
-  .goal-form .btn{flex:0 0 auto;}
+  .goal-form{display:flex; flex-direction:column; gap:8px;}
+  .goal-form input[type="number"]{width:100%;}
+  .goal-form .segmented{width:100%;}
+  .goal-form .btn{width:100%;}
   .goal-progress{
     margin-top:16px;
     padding-top:16px;
@@ -475,23 +539,22 @@
   .goal-stats-row{
     display:flex;
     align-items:center;
-    justify-content:center;
-    gap:18px;
-    flex-wrap:wrap;
+    justify-content:space-between;
+    gap:8px;
     margin-bottom:14px;
   }
-  .goal-stat{text-align:center;}
-  .gs-label{font-family:'Oswald',sans-serif; font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:4px;}
-  .gs-val{font-family:'JetBrains Mono',monospace; font-size:20px; font-weight:700; color:var(--text);}
-  .gs-val .gs-unit{font-size:11px; color:var(--text-faint); font-weight:500; margin-left:2px;}
-  .goal-arrow{color:var(--text-faint); font-size:18px;}
+  .goal-stat{text-align:center; flex:1; min-width:0;}
+  .gs-label{font-family:'Oswald',sans-serif; font-size:10px; letter-spacing:0.05em; text-transform:uppercase; color:var(--text-faint); margin-bottom:4px;}
+  .gs-val{font-family:'JetBrains Mono',monospace; font-size:17px; font-weight:700; color:var(--text);}
+  .gs-val .gs-unit{font-size:10px; color:var(--text-faint); font-weight:500; margin-left:2px;}
+  .goal-arrow{color:var(--text-faint); font-size:16px; flex-shrink:0;}
   .goal-rate-row{
-    display:flex; align-items:center; justify-content:space-between;
-    flex-wrap:wrap; gap:8px; margin-bottom:12px;
+    display:flex; align-items:flex-start; justify-content:space-between;
+    flex-direction:column; gap:8px; margin-bottom:12px;
   }
-  .goal-rate-label{font-family:'Oswald',sans-serif; font-size:12.5px; letter-spacing:0.03em; color:var(--text-dim); text-transform:uppercase;}
+  .goal-rate-label{font-family:'Oswald',sans-serif; font-size:12px; letter-spacing:0.03em; color:var(--text-dim); text-transform:uppercase;}
   .goal-rate-badge{
-    font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:700;
+    font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:700;
     padding:4px 14px; border-radius:20px;
   }
   .goal-rate-badge.on-track{background:var(--protein-dim); color:var(--protein);}
@@ -499,23 +562,23 @@
   .goal-rate-badge.too-slow{background:var(--carb-dim); color:var(--carb);}
   .goal-rate-badge.neutral{background:var(--panel-raised); color:var(--text-faint); border:1px solid var(--line);}
   .goal-suggestion{
-    font-size:13px; line-height:1.6; color:var(--text-dim);
-    background:var(--panel-raised); border-radius:10px; padding:12px 14px;
+    font-size:12.5px; line-height:1.6; color:var(--text-dim);
+    background:var(--panel-raised); border-radius:10px; padding:12px 13px;
     border:1px solid var(--line-soft);
   }
 
-  .history-form{display:flex; gap:10px; flex-wrap:wrap; align-items:stretch; margin-bottom:16px;}
-  .history-form input{flex:1 1 130px;}
-  .history-form .btn{flex:0 0 auto; padding:0 22px;}
+  .history-form{display:flex; flex-direction:column; gap:8px; margin-bottom:16px;}
+  .history-form input{width:100%;}
+  .history-form .btn{width:100%; padding:0; min-height:50px;}
 
   .chart-container{
     background:var(--panel-sunken);
     border:1px solid var(--line);
     border-radius:16px;
-    padding:16px 14px;
+    padding:14px 10px;
     margin-bottom:14px;
   }
-  .chart-container canvas{width:100% !important; max-height:220px;}
+  .chart-container canvas{width:100% !important; max-height:200px;}
 
   .history-list{
     max-height:190px;
@@ -523,7 +586,7 @@
     background:var(--panel-sunken);
     border:1px solid var(--line);
     border-radius:14px;
-    padding:4px 14px;
+    padding:4px 12px;
   }
   .history-item{
     display:flex;
@@ -531,43 +594,103 @@
     align-items:center;
     padding:11px 0;
     border-bottom:1px solid var(--line-soft);
-    font-size:13.5px;
+    font-size:13px;
+    gap:8px;
   }
   .history-item:last-child{border-bottom:none;}
-  .h-date{font-family:'JetBrains Mono',monospace; color:var(--text-dim); font-size:12.5px;}
+  .h-date{font-family:'JetBrains Mono',monospace; color:var(--text-dim); font-size:11.5px;}
   .h-weight{
     font-family:'JetBrains Mono',monospace;
     font-weight:700;
     color:var(--trend);
     background:var(--trend-dim);
-    padding:3px 14px;
+    padding:3px 12px;
     border-radius:20px;
-    font-size:13px;
+    font-size:12.5px;
+    white-space:nowrap;
   }
-  .empty-state{color:var(--text-faint); text-align:center; padding:24px 0; font-size:13px; font-family:'JetBrains Mono',monospace;}
+  .empty-state{color:var(--text-faint); text-align:center; padding:24px 0; font-size:12.5px; font-family:'JetBrains Mono',monospace;}
 
   .footer-note{
-    margin-top:26px;
-    font-size:11px;
+    margin-top:24px;
+    font-size:10.5px;
     font-family:'JetBrains Mono',monospace;
     color:var(--text-faint);
     text-align:center;
     border-top:1px solid var(--line);
     padding-top:16px;
     letter-spacing:0.02em;
+    line-height:1.6;
   }
 
-  @media (max-width:480px){
-    body{padding:16px 8px 40px;}
-    .console-head{padding:18px 18px 14px; flex-direction:column;}
-    .body-pad{padding:20px 16px 26px;}
-    .head-name{font-size:24px;}
-    .meal-card{grid-template-columns:74px 1fr 1fr 1fr; padding:12px 12px; gap:4px;}
-    .meal-val{font-size:11.5px;}
-    .rings-row{gap:8px;}
-    .ring-num{font-size:18px;}
-    .history-form, .custom-form{flex-direction:column;}
-    .history-form .btn, .custom-form .btn{width:100%;}
+  /* ============================================================
+     ENHANCEMENTS FOR LARGER VIEWPORTS (mobile-first: base styles
+     above target phones; these rules progressively add room/scale
+     as space becomes available)
+     ============================================================ */
+  @media (min-width:480px){
+    .ring-item svg{width:80px; height:80px;}
+    .ring-num{font-size:20px;}
+    .rings-row{gap:10px;}
+  }
+
+  @media (min-width:640px){
+    body{padding:32px 16px 60px;}
+    .console{border-radius:20px;}
+    .console-head{
+      flex-direction:row;
+      align-items:flex-start;
+      justify-content:space-between;
+      padding:22px 28px 18px;
+    }
+    .head-title{font-size:15px;}
+    .head-name{font-size:30px;}
+    .head-sub{max-width:320px;}
+    .head-badge{align-self:auto;}
+    .body-pad{padding:26px 28px 32px;}
+
+    .seg-btn{font-size:14.5px;}
+
+    .rings-section{padding:24px 20px 8px;}
+    .rings-row{justify-content:space-around; flex-wrap:wrap;}
+    .ring-item svg{width:86px; height:86px;}
+    .ring-num{font-size:22px;}
+    .ring-unit{font-size:11px;}
+    .ring-label{font-size:12px;}
+    .ring-pct{font-size:11px;}
+    .total-strip{flex-direction:row; justify-content:space-between; align-items:center;}
+
+    .section-title{flex-direction:row; justify-content:space-between; align-items:center;}
+
+    .meal-card{
+      display:grid;
+      grid-template-columns:96px 1fr 1fr 1fr;
+      gap:8px;
+      align-items:center;
+      padding:14px 18px;
+    }
+    .meal-macros{display:contents;}
+
+    .custom-form{flex-direction:row; flex-wrap:wrap; align-items:stretch;}
+    .custom-form input, .custom-form select{flex:1 1 130px; width:auto;}
+    .custom-form .btn{flex:0 0 auto; width:auto;}
+
+    .supp-form{flex-direction:row; flex-wrap:wrap; align-items:stretch;}
+    .supp-form input[type="text"]{flex:1 1 180px; width:auto;}
+    .supp-form .segmented{flex:1 1 180px; width:auto;}
+    .supp-form .btn{flex:0 0 auto; width:auto;}
+
+    .supp-checklist{display:grid; grid-template-columns:1fr 1fr;}
+
+    .goal-form{flex-direction:row; flex-wrap:wrap; align-items:stretch;}
+    .goal-form input[type="number"]{flex:1 1 140px; width:auto;}
+    .goal-form .segmented{flex:1 1 220px; width:auto;}
+    .goal-form .btn{flex:0 0 auto; width:auto;}
+    .goal-rate-row{flex-direction:row; align-items:center;}
+
+    .history-form{flex-direction:row; flex-wrap:wrap; align-items:stretch;}
+    .history-form input{flex:1 1 130px; width:auto;}
+    .history-form .btn{flex:0 0 auto; padding:0 22px; width:auto;}
   }
 </style>
 </head>
@@ -680,21 +803,27 @@
         </div>
         <div class="meal-card">
           <span class="meal-name">早餐</span>
-          <span class="meal-val c" id="breakfastCarb">--<span class="u">g 碳水</span></span>
-          <span class="meal-val p" id="breakfastProtein">--<span class="u">g 蛋白</span></span>
-          <span class="meal-val f" id="breakfastFat">--<span class="u">g 脂肪</span></span>
+          <div class="meal-macros">
+            <span class="meal-val c" id="breakfastCarb">--<span class="u">g 碳水</span></span>
+            <span class="meal-val p" id="breakfastProtein">--<span class="u">g 蛋白</span></span>
+            <span class="meal-val f" id="breakfastFat">--<span class="u">g 脂肪</span></span>
+          </div>
         </div>
         <div class="meal-card">
           <span class="meal-name">午餐</span>
-          <span class="meal-val c" id="lunchCarb">--<span class="u">g 碳水</span></span>
-          <span class="meal-val p" id="lunchProtein">--<span class="u">g 蛋白</span></span>
-          <span class="meal-val f" id="lunchFat">--<span class="u">g 脂肪</span></span>
+          <div class="meal-macros">
+            <span class="meal-val c" id="lunchCarb">--<span class="u">g 碳水</span></span>
+            <span class="meal-val p" id="lunchProtein">--<span class="u">g 蛋白</span></span>
+            <span class="meal-val f" id="lunchFat">--<span class="u">g 脂肪</span></span>
+          </div>
         </div>
         <div class="meal-card">
           <span class="meal-name">晚餐</span>
-          <span class="meal-val c" id="dinnerCarb">--<span class="u">g 碳水</span></span>
-          <span class="meal-val p" id="dinnerProtein">--<span class="u">g 蛋白</span></span>
-          <span class="meal-val f" id="dinnerFat">--<span class="u">g 脂肪</span></span>
+          <div class="meal-macros">
+            <span class="meal-val c" id="dinnerCarb">--<span class="u">g 碳水</span></span>
+            <span class="meal-val p" id="dinnerProtein">--<span class="u">g 蛋白</span></span>
+            <span class="meal-val f" id="dinnerFat">--<span class="u">g 脂肪</span></span>
+          </div>
         </div>
       </div>
 
@@ -726,6 +855,42 @@
               <div class="custom-empty">暂无自定义食物，添加一个吧</div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="supplement-section">
+      <div class="section-title">补剂 / 维生素打卡 <span class="note">早晚提醒，不遗漏</span></div>
+
+      <div class="supp-manager">
+        <div class="supp-form">
+          <input type="text" id="suppName" placeholder="补剂名称，如 鱼油 / 维生素D">
+          <div class="segmented" id="suppTimingToggle">
+            <button type="button" class="seg-btn active" data-value="morning">早</button>
+            <button type="button" class="seg-btn" data-value="evening">晚</button>
+            <button type="button" class="seg-btn" data-value="both">早晚</button>
+          </div>
+          <input type="hidden" id="suppTiming" value="morning">
+          <button type="button" class="btn btn-success btn-sm" id="addSuppBtn">添加</button>
+        </div>
+      </div>
+
+      <div class="supp-progress-row">
+        <span class="supp-date mono" id="suppDateLabel">今天</span>
+        <span class="supp-progress-badge" id="suppProgressBadge">0/0</span>
+      </div>
+      <div class="supp-progress-bar-track">
+        <div class="supp-progress-bar-fill" id="suppProgressFill"></div>
+      </div>
+
+      <div class="supp-checklist">
+        <div class="supp-slot">
+          <div class="supp-slot-title">🌅 早</div>
+          <div class="supp-items" id="suppMorningList"></div>
+        </div>
+        <div class="supp-slot">
+          <div class="supp-slot-title">🌙 晚</div>
+          <div class="supp-items" id="suppEveningList"></div>
         </div>
       </div>
     </div>
@@ -790,6 +955,8 @@
 const CUSTOM_FOODS_KEY = 'custom_foods';
 const HISTORY_KEY = 'weight_history';
 const GOAL_KEY = 'weight_goal';
+const SUPPLEMENTS_KEY = 'supplements';
+const SUPPLEMENT_LOG_KEY = 'supplement_log';
 
 async function storageGet(key, defaultValue = []){
   try{
@@ -812,6 +979,8 @@ async function storageSet(key, value){
 let customFoodsCache = [];
 let historyCache = [];
 let goalCache = { targetWeight: null, mode: 'cut' };
+let suppCache = [];
+let suppLogCache = {};
 
 // ============================================================
 // 核心计算数据
@@ -881,6 +1050,13 @@ document.querySelectorAll('#goalModeToggle .seg-btn').forEach(btn=>{
     document.querySelectorAll('#goalModeToggle .seg-btn').forEach(b=>b.classList.remove('active'));
     this.classList.add('active');
     document.getElementById('goalMode').value = this.dataset.value;
+  });
+});
+document.querySelectorAll('#suppTimingToggle .seg-btn').forEach(btn=>{
+  btn.addEventListener('click', function(){
+    document.querySelectorAll('#suppTimingToggle .seg-btn').forEach(b=>b.classList.remove('active'));
+    this.classList.add('active');
+    document.getElementById('suppTiming').value = this.dataset.value;
   });
 });
 
@@ -1082,6 +1258,110 @@ document.getElementById('toggleCustomPanel').addEventListener('click', function(
   const icon = document.getElementById('toggleIcon');
   panel.classList.toggle('open');
   icon.textContent = panel.classList.contains('open') ? '▾' : '▸';
+});
+
+// ============================================================
+// 补剂 / 维生素打卡
+// ============================================================
+function todayKey(){ return new Date().toISOString().split('T')[0]; }
+
+async function addSupplement(name, timing){
+  if(!name.trim()){ alert('请输入补剂名称'); return false; }
+  suppCache.push({
+    id: Date.now().toString(36)+Math.random().toString(36).substr(2,5),
+    name: name.trim(), timing
+  });
+  await storageSet(SUPPLEMENTS_KEY, suppCache);
+  renderSuppChecklist();
+  return true;
+}
+
+async function deleteSupplement(id){
+  if(!confirm('确定要删除这个补剂吗？')) return;
+  suppCache = suppCache.filter(s=>s.id!==id);
+  await storageSet(SUPPLEMENTS_KEY, suppCache);
+  renderSuppChecklist();
+}
+
+async function toggleSuppCheck(id, slot, checked){
+  const date = todayKey();
+  if(!suppLogCache[date]) suppLogCache[date] = {};
+  const key = id+'_'+slot;
+  if(checked) suppLogCache[date][key] = true;
+  else delete suppLogCache[date][key];
+  await storageSet(SUPPLEMENT_LOG_KEY, suppLogCache);
+  updateSuppProgress();
+}
+
+function renderSuppItem(s, slot){
+  const date = todayKey();
+  const checked = !!(suppLogCache[date] && suppLogCache[date][s.id+'_'+slot]);
+  return `<label class="supp-item ${checked?'checked':''}">
+    <input type="checkbox" data-id="${s.id}" data-slot="${slot}" ${checked?'checked':''}>
+    <span class="supp-item-name">${s.name}</span>
+    <button type="button" class="supp-item-del" data-id="${s.id}" title="删除">✕</button>
+  </label>`;
+}
+
+function renderSuppChecklist(){
+  const morningItems = suppCache.filter(s=>s.timing==='morning'||s.timing==='both');
+  const eveningItems = suppCache.filter(s=>s.timing==='evening'||s.timing==='both');
+
+  const morningEl = document.getElementById('suppMorningList');
+  const eveningEl = document.getElementById('suppEveningList');
+
+  morningEl.innerHTML = morningItems.length
+    ? morningItems.map(s=>renderSuppItem(s,'morning')).join('')
+    : `<div class="supp-empty">暂无早间补剂，在上方添加一个吧</div>`;
+  eveningEl.innerHTML = eveningItems.length
+    ? eveningItems.map(s=>renderSuppItem(s,'evening')).join('')
+    : `<div class="supp-empty">暂无晚间补剂，在上方添加一个吧</div>`;
+
+  document.querySelectorAll('.supp-item input[type="checkbox"]').forEach(cb=>{
+    cb.addEventListener('change', function(){
+      toggleSuppCheck(this.dataset.id, this.dataset.slot, this.checked);
+      this.closest('.supp-item').classList.toggle('checked', this.checked);
+    });
+  });
+  document.querySelectorAll('.supp-item-del').forEach(btn=>{
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      deleteSupplement(this.dataset.id);
+    });
+  });
+
+  updateSuppProgress();
+}
+
+function updateSuppProgress(){
+  const date = todayKey();
+  const morningItems = suppCache.filter(s=>s.timing==='morning'||s.timing==='both');
+  const eveningItems = suppCache.filter(s=>s.timing==='evening'||s.timing==='both');
+  const total = morningItems.length + eveningItems.length;
+  const log = suppLogCache[date] || {};
+  let checkedCount = 0;
+  morningItems.forEach(s=>{ if(log[s.id+'_morning']) checkedCount++; });
+  eveningItems.forEach(s=>{ if(log[s.id+'_evening']) checkedCount++; });
+
+  const badge = document.getElementById('suppProgressBadge');
+  badge.textContent = `${checkedCount}/${total}`;
+  badge.className = 'supp-progress-badge' + (total>0 && checkedCount===total ? ' complete' : '');
+  const pct = total>0 ? (checkedCount/total)*100 : 0;
+  document.getElementById('suppProgressFill').style.width = pct + '%';
+
+  const now = new Date();
+  const dateLabel = now.toLocaleDateString('zh-CN', { month:'numeric', day:'numeric', weekday:'short' });
+  document.getElementById('suppDateLabel').textContent = '今天 · ' + dateLabel;
+}
+
+document.getElementById('addSuppBtn').addEventListener('click', async function(){
+  const nameInput = document.getElementById('suppName');
+  const timing = document.getElementById('suppTiming').value;
+  const success = await addSupplement(nameInput.value, timing);
+  if(success) nameInput.value = '';
+});
+document.getElementById('suppName').addEventListener('keydown', function(e){
+  if(e.key === 'Enter') document.getElementById('addSuppBtn').click();
 });
 
 // ============================================================
@@ -1301,6 +1581,8 @@ async function init(){
     customFoodsCache = await storageGet(CUSTOM_FOODS_KEY);
     historyCache = await storageGet(HISTORY_KEY);
     goalCache = await storageGet(GOAL_KEY, { targetWeight: null, mode: 'cut' });
+    suppCache = await storageGet(SUPPLEMENTS_KEY, []);
+    suppLogCache = await storageGet(SUPPLEMENT_LOG_KEY, {});
     storageBadge.textContent = '数据已同步';
   }catch(e){
     storageBadge.textContent = '本地模式';
@@ -1316,6 +1598,7 @@ async function init(){
 
   renderCustomFoodList();
   renderChartAndList();
+  renderSuppChecklist();
   form.dispatchEvent(new Event('submit'));
 }
 document.addEventListener('DOMContentLoaded', init);
