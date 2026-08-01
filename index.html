@@ -459,6 +459,55 @@
   .ci-del:hover{background:#ff5c7222;}
   .custom-empty{color:var(--text-faint); font-size:12px; padding:6px 0;}
 
+  /* ===== Meal intake logging ===== */
+  .meal-intake-section{margin-top:22px; border-top:1px solid var(--line); padding-top:20px;}
+  .intake-progress{
+    background:var(--panel-sunken);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:14px 14px;
+    margin-bottom:14px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+  .intake-progress-row{
+    display:flex; align-items:center; justify-content:space-between;
+    font-family:'Oswald',sans-serif; font-size:11.5px; letter-spacing:0.03em;
+    text-transform:uppercase; color:var(--text-dim); margin-bottom:6px;
+  }
+  .intake-progress-row .ipv{font-family:'JetBrains Mono',monospace; text-transform:none; letter-spacing:0; color:var(--text); font-size:12.5px; font-weight:600;}
+  .intake-progress-row .ipv.over{color:var(--danger);}
+  .intake-progress-block:last-child{margin-bottom:0;}
+  .intake-mode-toggle{margin-bottom:12px;}
+  .intake-list{display:flex; flex-direction:column; gap:8px; margin-top:6px; margin-bottom:14px;}
+  .intake-item{
+    background:var(--panel-raised);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:10px 12px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .intake-item-info{display:flex; flex-direction:column; gap:3px; min-width:0;}
+  .intake-item-name{font-size:13px; color:var(--text); font-weight:600;}
+  .intake-item-macros{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-faint); display:flex; gap:8px; flex-wrap:wrap;}
+  .intake-item-macros .c{color:var(--carb);}
+  .intake-item-macros .p{color:var(--protein);}
+  .intake-item-macros .f{color:var(--fat);}
+  .intake-empty{color:var(--text-faint); font-size:12px; padding:10px 0; text-align:center;}
+  .intake-day-summary{
+    display:flex; align-items:center; justify-content:space-between;
+    background:var(--panel-raised); border:1px solid var(--line);
+    border-radius:12px; padding:12px 14px; font-family:'Oswald',sans-serif;
+    font-size:12px; letter-spacing:0.03em; text-transform:uppercase; color:var(--text-dim);
+    gap:8px; flex-wrap:wrap;
+  }
+  .intake-day-summary .ids-val{font-family:'JetBrains Mono',monospace; font-size:15px; font-weight:700; color:var(--text); text-transform:none; letter-spacing:0;}
+  .intake-day-summary .ids-val.over{color:var(--danger);}
+
   /* ===== Supplement check-in ===== */
   .supplement-section{margin-top:24px; border-top:1px solid var(--line); padding-top:22px;}
   .supp-manager{margin-bottom:16px;}
@@ -857,6 +906,40 @@
           </div>
         </div>
       </div>
+
+      <div class="meal-intake-section">
+        <div class="section-title">今日摄入记录 <span class="note">记录实际吃了什么，对比目标</span></div>
+
+        <div class="conv-tabs" id="intakeTabs">
+          <button class="conv-tab active" data-meal="breakfast">早餐</button>
+          <button class="conv-tab" data-meal="lunch">午餐</button>
+          <button class="conv-tab" data-meal="dinner">晚餐</button>
+        </div>
+
+        <div class="intake-progress" id="intakeProgress"></div>
+
+        <div class="segmented intake-mode-toggle" id="intakeModeToggle">
+          <button type="button" class="seg-btn active" data-value="library">从食物库添加</button>
+          <button type="button" class="seg-btn" data-value="custom">自定义营养输入</button>
+        </div>
+
+        <div class="custom-form" id="intakeFormLibrary">
+          <select id="intakeFoodSelect"></select>
+          <input type="number" id="intakeFoodWeight" placeholder="重量 (g)" min="0" step="1">
+          <button type="button" class="btn btn-success btn-sm" id="addIntakeLibraryBtn">添加</button>
+        </div>
+
+        <div class="custom-form" id="intakeFormCustom" style="display:none;">
+          <input type="text" id="intakeCustomName" placeholder="食物/菜名，如 牛肉面">
+          <input type="number" id="intakeCustomCarb" placeholder="碳水(g)" min="0" step="0.1">
+          <input type="number" id="intakeCustomProtein" placeholder="蛋白(g)" min="0" step="0.1">
+          <input type="number" id="intakeCustomFat" placeholder="脂肪(g)" min="0" step="0.1">
+          <button type="button" class="btn btn-success btn-sm" id="addIntakeCustomBtn">添加</button>
+        </div>
+
+        <div class="intake-list" id="intakeList"></div>
+        <div class="intake-day-summary" id="intakeDaySummary"></div>
+      </div>
     </div>
 
     <div class="supplement-section">
@@ -957,6 +1040,7 @@ const HISTORY_KEY = 'weight_history';
 const GOAL_KEY = 'weight_goal';
 const SUPPLEMENTS_KEY = 'supplements';
 const SUPPLEMENT_LOG_KEY = 'supplement_log';
+const INTAKE_LOG_KEY = 'intake_log';
 
 async function storageGet(key, defaultValue = []){
   try{
@@ -981,6 +1065,9 @@ let historyCache = [];
 let goalCache = { targetWeight: null, mode: 'cut' };
 let suppCache = [];
 let suppLogCache = {};
+let intakeLogCache = {}; // { 'YYYY-MM-DD': { breakfast:[], lunch:[], dinner:[] } }
+let currentIntakeMeal = 'breakfast';
+let currentIntakeMode = 'library';
 
 // ============================================================
 // 核心计算数据
@@ -1057,6 +1144,24 @@ document.querySelectorAll('#suppTimingToggle .seg-btn').forEach(btn=>{
     document.querySelectorAll('#suppTimingToggle .seg-btn').forEach(b=>b.classList.remove('active'));
     this.classList.add('active');
     document.getElementById('suppTiming').value = this.dataset.value;
+  });
+});
+document.querySelectorAll('#intakeModeToggle .seg-btn').forEach(btn=>{
+  btn.addEventListener('click', function(){
+    document.querySelectorAll('#intakeModeToggle .seg-btn').forEach(b=>b.classList.remove('active'));
+    this.classList.add('active');
+    currentIntakeMode = this.dataset.value;
+    document.getElementById('intakeFormLibrary').style.display = currentIntakeMode === 'library' ? '' : 'none';
+    document.getElementById('intakeFormCustom').style.display = currentIntakeMode === 'custom' ? '' : 'none';
+  });
+});
+document.querySelectorAll('#intakeTabs .conv-tab').forEach(tab=>{
+  tab.addEventListener('click', function(){
+    document.querySelectorAll('#intakeTabs .conv-tab').forEach(t=>t.classList.remove('active'));
+    this.classList.add('active');
+    currentIntakeMeal = this.dataset.meal;
+    renderIntakeProgress();
+    renderIntakeList();
   });
 });
 
@@ -1140,6 +1245,8 @@ function calculateDiet(e){
   currentMacros.dinner = { carb:Math.round(mealValues[2].carb*10)/10, protein:Math.round(mealValues[2].protein*10)/10, fat:Math.round(mealValues[2].fat*10)/10 };
 
   updateConversion('total');
+  renderIntakeProgress();
+  renderIntakeDaySummary();
   resultArea.classList.add('show');
   resultArea.scrollIntoView({behavior:'smooth', block:'nearest'});
   document.getElementById('historyWeight').value = weight;
@@ -1183,7 +1290,7 @@ function updateConversion(mealType){
     tab.classList.toggle('active', tab.dataset.meal === mealType);
   });
 }
-document.querySelectorAll('.conv-tab').forEach(tab=>{
+document.querySelectorAll('.conversion-section .conv-tab').forEach(tab=>{
   tab.addEventListener('click', function(){ updateConversion(this.dataset.meal); });
 });
 
@@ -1222,8 +1329,9 @@ async function addCustomFood(name, category, ratio, unit){
   });
   await storageSet(CUSTOM_FOODS_KEY, customFoodsCache);
   renderCustomFoodList();
+  renderIntakeFoodSelect();
   if(resultArea.classList.contains('show')){
-    const activeTab = document.querySelector('.conv-tab.active');
+    const activeTab = document.querySelector('.conversion-section .conv-tab.active');
     if(activeTab) updateConversion(activeTab.dataset.meal);
   }
   return true;
@@ -1234,8 +1342,9 @@ async function deleteCustomFood(id){
   customFoodsCache = customFoodsCache.filter(f=>f.id!==id);
   await storageSet(CUSTOM_FOODS_KEY, customFoodsCache);
   renderCustomFoodList();
+  renderIntakeFoodSelect();
   if(resultArea.classList.contains('show')){
-    const activeTab = document.querySelector('.conv-tab.active');
+    const activeTab = document.querySelector('.conversion-section .conv-tab.active');
     if(activeTab) updateConversion(activeTab.dataset.meal);
   }
 }
@@ -1259,6 +1368,187 @@ document.getElementById('toggleCustomPanel').addEventListener('click', function(
   panel.classList.toggle('open');
   icon.textContent = panel.classList.contains('open') ? '▾' : '▸';
 });
+
+// ============================================================
+// 每餐摄入记录
+// ============================================================
+const INTAKE_CAT_LABEL = { carbs:'碳水', protein:'蛋白质', fats:'脂肪' };
+const MEAL_LABEL = { breakfast:'早餐', lunch:'午餐', dinner:'晚餐' };
+
+function getCombinedFoodOptionsFlat(){
+  const out = [];
+  ['carbs','protein','fats'].forEach(cat=>{
+    getAllFoods(cat).forEach(item=>{
+      out.push({ category:cat, name:item.name, ratio:item.ratio, unit:item.unit||'g' });
+    });
+  });
+  return out;
+}
+
+function renderIntakeFoodSelect(){
+  const select = document.getElementById('intakeFoodSelect');
+  if(!select) return;
+  const prevValue = select.value;
+  const groups = { carbs:[], protein:[], fats:[] };
+  getCombinedFoodOptionsFlat().forEach(item=> groups[item.category].push(item));
+  let html = '';
+  ['carbs','protein','fats'].forEach(cat=>{
+    if(groups[cat].length === 0) return;
+    html += `<optgroup label="${INTAKE_CAT_LABEL[cat]}">`;
+    groups[cat].forEach(item=>{
+      html += `<option value="${cat}::${item.name}" data-category="${cat}" data-ratio="${item.ratio}" data-unit="${item.unit}">${item.name} (${item.unit==='个'?'个':'/100g'})</option>`;
+    });
+    html += `</optgroup>`;
+  });
+  select.innerHTML = html || `<option value="">暂无食物，请先添加自定义食物</option>`;
+  if(prevValue && select.querySelector(`option[value="${prevValue}"]`)) select.value = prevValue;
+}
+
+function getTodayIntake(){
+  const date = todayKey();
+  if(!intakeLogCache[date]) intakeLogCache[date] = { breakfast:[], lunch:[], dinner:[] };
+  if(!intakeLogCache[date][currentIntakeMeal]) intakeLogCache[date][currentIntakeMeal] = [];
+  return intakeLogCache[date];
+}
+
+async function addIntakeEntry(entry){
+  const dayLog = getTodayIntake();
+  dayLog[currentIntakeMeal].push({ id: Date.now().toString(36)+Math.random().toString(36).substr(2,5), ...entry });
+  await storageSet(INTAKE_LOG_KEY, intakeLogCache);
+  renderIntakeProgress();
+  renderIntakeList();
+  renderIntakeDaySummary();
+}
+
+async function deleteIntakeEntry(id){
+  const dayLog = getTodayIntake();
+  dayLog[currentIntakeMeal] = dayLog[currentIntakeMeal].filter(e=>e.id!==id);
+  await storageSet(INTAKE_LOG_KEY, intakeLogCache);
+  renderIntakeProgress();
+  renderIntakeList();
+  renderIntakeDaySummary();
+}
+
+document.getElementById('intakeFoodSelect').addEventListener('change', function(){
+  const option = this.selectedOptions[0];
+  const weightInputEl = document.getElementById('intakeFoodWeight');
+  if(option && option.dataset.unit === '个'){
+    weightInputEl.placeholder = '数量 (个)';
+  } else {
+    weightInputEl.placeholder = '重量 (g)';
+  }
+});
+
+document.getElementById('addIntakeLibraryBtn').addEventListener('click', function(){
+  const select = document.getElementById('intakeFoodSelect');
+  const weightInputEl = document.getElementById('intakeFoodWeight');
+  const option = select.selectedOptions[0];
+  if(!option || !option.dataset.category){ alert('请先添加食物库或选择一个食物'); return; }
+  const weight = parseFloat(weightInputEl.value);
+  if(isNaN(weight) || weight <= 0){ alert('请输入有效的重量/数量'); return; }
+  const category = option.dataset.category;
+  const ratio = parseFloat(option.dataset.ratio);
+  const unit = option.dataset.unit;
+  const macroGrams = unit === '个' ? weight * ratio : (weight/100) * ratio;
+  const entry = { name: option.textContent.replace(/\s*\([^)]*\)\s*$/,''), carb:0, protein:0, fat:0 };
+  if(category === 'carbs') entry.carb = Math.round(macroGrams*10)/10;
+  if(category === 'protein') entry.protein = Math.round(macroGrams*10)/10;
+  if(category === 'fats') entry.fat = Math.round(macroGrams*10)/10;
+  entry.name += ` · ${weight}${unit}`;
+  addIntakeEntry(entry);
+  weightInputEl.value = '';
+});
+
+document.getElementById('addIntakeCustomBtn').addEventListener('click', function(){
+  const nameEl = document.getElementById('intakeCustomName');
+  const carbEl = document.getElementById('intakeCustomCarb');
+  const proteinEl = document.getElementById('intakeCustomProtein');
+  const fatEl = document.getElementById('intakeCustomFat');
+  const name = nameEl.value.trim();
+  if(!name){ alert('请输入食物/菜名'); return; }
+  const carb = parseFloat(carbEl.value) || 0;
+  const protein = parseFloat(proteinEl.value) || 0;
+  const fat = parseFloat(fatEl.value) || 0;
+  if(carb<=0 && protein<=0 && fat<=0){ alert('请至少输入一项营养素含量'); return; }
+  addIntakeEntry({ name, carb: Math.round(carb*10)/10, protein: Math.round(protein*10)/10, fat: Math.round(fat*10)/10 });
+  nameEl.value=''; carbEl.value=''; proteinEl.value=''; fatEl.value='';
+});
+
+function sumMealIntake(mealEntries){
+  return mealEntries.reduce((acc,e)=>{
+    acc.carb += e.carb||0; acc.protein += e.protein||0; acc.fat += e.fat||0;
+    return acc;
+  }, { carb:0, protein:0, fat:0 });
+}
+
+function intakeBarRow(label, colorVar, consumed, target){
+  const pct = target>0 ? Math.min(100, Math.round((consumed/target)*100)) : 0;
+  const over = target>0 && consumed > target;
+  return `<div class="intake-progress-block">
+    <div class="intake-progress-row">
+      <span>${label}</span>
+      <span class="ipv ${over?'over':''}">${Math.round(consumed*10)/10} / ${target>0?target:'--'} g</span>
+    </div>
+    <div class="supp-progress-bar-track">
+      <div class="supp-progress-bar-fill" style="width:${pct}%; background:${over?'var(--danger)':colorVar};"></div>
+    </div>
+  </div>`;
+}
+
+function renderIntakeProgress(){
+  const container = document.getElementById('intakeProgress');
+  if(!container) return;
+  const dayLog = getTodayIntake();
+  const entries = dayLog[currentIntakeMeal] || [];
+  const consumed = sumMealIntake(entries);
+  const target = currentMacros[currentIntakeMeal] || { carb:0, protein:0, fat:0 };
+  container.innerHTML =
+    intakeBarRow('碳水', 'var(--carb)', consumed.carb, target.carb) +
+    intakeBarRow('蛋白质', 'var(--protein)', consumed.protein, target.protein) +
+    intakeBarRow('脂肪', 'var(--fat)', consumed.fat, target.fat);
+}
+
+function renderIntakeList(){
+  const container = document.getElementById('intakeList');
+  if(!container) return;
+  const dayLog = getTodayIntake();
+  const entries = dayLog[currentIntakeMeal] || [];
+  if(entries.length === 0){
+    container.innerHTML = `<div class="intake-empty">${MEAL_LABEL[currentIntakeMeal]}还没有记录，添加你吃的食物吧</div>`;
+    return;
+  }
+  container.innerHTML = entries.map(e=>`
+    <div class="intake-item">
+      <div class="intake-item-info">
+        <span class="intake-item-name">${e.name}</span>
+        <span class="intake-item-macros">
+          <span class="c">碳水 ${e.carb||0}g</span>
+          <span class="p">蛋白 ${e.protein||0}g</span>
+          <span class="f">脂肪 ${e.fat||0}g</span>
+        </span>
+      </div>
+      <button class="btn-danger" data-id="${e.id}">删除</button>
+    </div>
+  `).join('');
+  container.querySelectorAll('.btn-danger').forEach(btn=>{
+    btn.addEventListener('click', function(){ deleteIntakeEntry(this.dataset.id); });
+  });
+}
+
+function renderIntakeDaySummary(){
+  const container = document.getElementById('intakeDaySummary');
+  if(!container) return;
+  const dayLog = getTodayIntake();
+  const dayTotal = ['breakfast','lunch','dinner'].reduce((acc,m)=>{
+    const s = sumMealIntake(dayLog[m]||[]);
+    acc.carb += s.carb; acc.protein += s.protein; acc.fat += s.fat;
+    return acc;
+  }, { carb:0, protein:0, fat:0 });
+  const consumedCal = Math.round(dayTotal.carb*4 + dayTotal.protein*4 + dayTotal.fat*9);
+  const targetCal = Math.round((currentMacros.total.carb||0)*4 + (currentMacros.total.protein||0)*4 + (currentMacros.total.fat||0)*9);
+  const over = targetCal>0 && consumedCal>targetCal;
+  container.innerHTML = `<span>今日已摄入热量</span><span class="ids-val ${over?'over':''}">${consumedCal} / ${targetCal>0?targetCal:'--'} kcal</span>`;
+}
 
 // ============================================================
 // 补剂 / 维生素打卡
@@ -1583,6 +1873,7 @@ async function init(){
     goalCache = await storageGet(GOAL_KEY, { targetWeight: null, mode: 'cut' });
     suppCache = await storageGet(SUPPLEMENTS_KEY, []);
     suppLogCache = await storageGet(SUPPLEMENT_LOG_KEY, {});
+    intakeLogCache = await storageGet(INTAKE_LOG_KEY, {});
     storageBadge.textContent = '数据已同步';
   }catch(e){
     storageBadge.textContent = '本地模式';
@@ -1597,6 +1888,8 @@ async function init(){
   }
 
   renderCustomFoodList();
+  renderIntakeFoodSelect();
+  renderIntakeList();
   renderChartAndList();
   renderSuppChecklist();
   form.dispatchEvent(new Event('submit'));
