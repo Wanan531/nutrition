@@ -89,7 +89,7 @@
   }
   .head-name{
     font-family:'Oswald',sans-serif;
-    font-size:23px;
+    font-size:clamp(19px, 6vw, 23px);
     font-weight:700;
     letter-spacing:0.01em;
     color:var(--text);
@@ -166,6 +166,7 @@
     flex:1;
     padding:12px 0;
     min-height:44px;
+    touch-action:manipulation;
     text-align:center;
     font-family:'Oswald',sans-serif;
     font-weight:500;
@@ -211,6 +212,7 @@
     width:100%;
     padding:15px;
     min-height:50px;
+    touch-action:manipulation;
     font-family:'Oswald',sans-serif;
     font-size:15px;
     font-weight:600;
@@ -348,7 +350,8 @@
   .intake-tabs{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px;}
   .intake-tab{
     padding:9px 15px;
-    min-height:40px;
+    min-height:44px;
+    touch-action:manipulation;
     border-radius:20px;
     border:1px solid var(--line);
     background:var(--panel-sunken);
@@ -489,10 +492,11 @@
     display:flex;
     justify-content:space-between;
     align-items:center;
+    flex-wrap:wrap;
     padding:11px 0;
     border-bottom:1px solid var(--line-soft);
     font-size:13px;
-    gap:8px;
+    gap:6px 8px;
   }
   .history-item:last-child{border-bottom:none;}
   .h-date{font-family:'JetBrains Mono',monospace; color:var(--text-dim); font-size:11.5px;}
@@ -518,6 +522,20 @@
     padding-top:16px;
     letter-spacing:0.02em;
     line-height:1.6;
+  }
+
+  /* ============================================================
+     ULTRA-NARROW PHONES (iPhone SE / 320-359px): tighten spacing
+     ============================================================ */
+  @media (max-width:359px){
+    body{padding:12px 6px 32px;}
+    .body-pad{padding:14px 12px 20px;}
+    .rings-section{padding:16px 8px 6px;}
+    .ring-item svg{width:60px; height:60px;}
+    .ring-num{font-size:16px;}
+    .rings-row{gap:4px;}
+    .meal-card{padding:12px 12px;}
+    .intake-form input, .custom-form input{font-size:15px;}
   }
 
   /* ============================================================
