@@ -817,6 +817,7 @@
 const HISTORY_KEY = 'weight_history';
 const GOAL_KEY = 'weight_goal';
 const INTAKE_LOG_KEY = 'intake_log';
+const CALC_INPUTS_KEY = 'calc_inputs';
 
 const LOCAL_STORAGE_PREFIX = 'nutrition_telemetry::';
 const hasClaudeStorage = (typeof window.storage !== 'undefined' && window.storage !== null);
@@ -992,6 +993,8 @@ function calculateDiet(e){
   currentMacros.dinner = { carb:Math.round(mealValues[2].carb*10)/10, protein:Math.round(mealValues[2].protein*10)/10, fat:Math.round(mealValues[2].fat*10)/10 };
   renderIntakeProgress();
   renderIntakeDaySummary();
+
+  storageSet(CALC_INPUTS_KEY, { weight, gender, trainingHours: hoursKey, dayType });
 
   resultArea.classList.add('show');
   resultArea.scrollIntoView({behavior:'smooth', block:'nearest'});
@@ -1343,6 +1346,23 @@ async function init(){
     historyCache = await storageGet(HISTORY_KEY);
     goalCache = await storageGet(GOAL_KEY, { targetWeight: null, mode: 'cut' });
     intakeLogCache = await storageGet(INTAKE_LOG_KEY, {});
+    const savedInputs = await storageGet(CALC_INPUTS_KEY, null);
+    if(savedInputs){
+      document.getElementById('weight').value = savedInputs.weight;
+      document.getElementById('trainingHours').value = savedInputs.trainingHours;
+
+      document.querySelectorAll('#genderToggle .seg-btn').forEach(b=>{
+        b.classList.toggle('active', b.dataset.value === savedInputs.gender);
+      });
+      genderValueInput.value = savedInputs.gender;
+
+      document.querySelectorAll('#dayToggle .seg-btn').forEach(b=>{
+        b.classList.toggle('active', b.dataset.value === savedInputs.dayType);
+      });
+      dayTypeInput.value = savedInputs.dayType;
+
+      document.getElementById('historyWeight').value = savedInputs.weight;
+    }
     storageBadge.textContent = hasClaudeStorage ? '数据已同步' : '本地浏览器存储';
   }catch(e){
     storageBadge.textContent = '存储异常';
