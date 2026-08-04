@@ -390,6 +390,26 @@
   .intake-form{display:flex; flex-direction:column; gap:8px; margin-bottom:14px;}
   .intake-form input{width:100%;}
   .intake-form .btn{width:100%;}
+  .fav-foods-label{
+    font-family:'Oswald',sans-serif; font-size:11px; letter-spacing:0.05em; text-transform:uppercase;
+    color:var(--text-faint); margin-bottom:8px;
+  }
+  .fav-chips{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px;}
+  .fav-chip{
+    display:flex; align-items:center; gap:8px;
+    background:var(--panel-raised); border:1px solid var(--line);
+    border-radius:20px; padding:8px 8px 8px 14px;
+    cursor:pointer; touch-action:manipulation; transition:border-color 0.15s, background 0.15s;
+  }
+  .fav-chip:hover{border-color:var(--trend); background:var(--trend-dim);}
+  .fav-chip-name{font-size:12.5px; color:var(--text); font-weight:600;}
+  .fav-chip-macros{font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-faint);}
+  .fav-chip-del{
+    background:none; border:none; color:var(--text-faint); font-size:14px;
+    cursor:pointer; padding:4px 6px; line-height:1; border-radius:50%;
+    min-width:26px; min-height:26px;
+  }
+  .fav-chip-del:hover{background:#ff5c7222; color:var(--danger);}
   .intake-list{display:flex; flex-direction:column; gap:8px; margin-bottom:14px;}
   .intake-item{
     background:var(--panel-raised);
@@ -744,6 +764,11 @@
 
         <div class="intake-progress" id="intakeProgress"></div>
 
+        <div id="favoriteFoodsBlock" style="display:none;">
+          <div class="fav-foods-label">常用食物 · 点一下直接加进这一餐</div>
+          <div class="fav-chips" id="favoriteFoodsChips"></div>
+        </div>
+
         <div class="intake-form">
           <input type="text" id="intakeName" placeholder="食物/菜名（可选）">
           <input type="number" id="intakeCarb" placeholder="碳水(g)" min="0" step="0.1">
@@ -818,6 +843,7 @@ const HISTORY_KEY = 'weight_history';
 const GOAL_KEY = 'weight_goal';
 const INTAKE_LOG_KEY = 'intake_log';
 const CALC_INPUTS_KEY = 'calc_inputs';
+const FOOD_FAVORITES_KEY = 'food_favorites';
 
 const LOCAL_STORAGE_PREFIX = 'nutrition_telemetry::';
 const hasClaudeStorage = (typeof window.storage !== 'undefined' && window.storage !== null);
@@ -860,6 +886,7 @@ async function storageSet(key, value){
 let historyCache = [];
 let goalCache = { targetWeight: null, mode: 'cut' };
 let intakeLogCache = {}; // { 'YYYY-MM-DD': { breakfast:[], lunch:[], dinner:[] } }
+let foodFavoritesCache = []; // [{ id, name, carb, protein, fat, count, lastUsed }]
 let currentIntakeMeal = 'breakfast';
 let currentMacros = {
   total:{carb:0,protein:0,fat:0},
@@ -1034,6 +1061,74 @@ async function deleteIntakeEntry(id){
   renderIntakeDaySummary();
 }
 
+// ============================================================
+// 常用食物快捷复用
+// ============================================================
+const MAX_FAVORITE_CHIPS = 8;
+
+async function recordFoodFavorite(entry){
+  const key = entry.name.trim().toLowerCase();
+  if(!key) return;
+  const existing = foodFavoritesCache.find(f=>f.name.trim().toLowerCase()===key);
+  if(existing){
+    existing.carb = entry.carb; existing.protein = entry.protein; existing.fat = entry.fat;
+    existing.count = (existing.count||0) + 1;
+    existing.lastUsed = Date.now();
+  } else {
+    foodFavoritesCache.push({
+      id: Date.now().toString(36)+Math.random().toString(36).substr(2,5),
+      name: entry.name.trim(), carb: entry.carb, protein: entry.protein, fat: entry.fat,
+      count: 1, lastUsed: Date.now()
+    });
+  }
+  await storageSet(FOOD_FAVORITES_KEY, foodFavoritesCache);
+  renderFavoriteChips();
+}
+
+async function deleteFavoriteFood(id){
+  foodFavoritesCache = foodFavoritesCache.filter(f=>f.id!==id);
+  await storageSet(FOOD_FAVORITES_KEY, foodFavoritesCache);
+  renderFavoriteChips();
+}
+
+function renderFavoriteChips(){
+  const block = document.getElementById('favoriteFoodsBlock');
+  const container = document.getElementById('favoriteFoodsChips');
+  if(!block || !container) return;
+  if(foodFavoritesCache.length === 0){
+    block.style.display = 'none';
+    return;
+  }
+  block.style.display = 'block';
+  const top = [...foodFavoritesCache]
+    .sort((a,b)=> (b.count-a.count) || (b.lastUsed-a.lastUsed))
+    .slice(0, MAX_FAVORITE_CHIPS);
+  container.innerHTML = top.map(f=>`
+    <div class="fav-chip" data-id="${f.id}">
+      <div>
+        <div class="fav-chip-name">${f.name}</div>
+        <div class="fav-chip-macros">碳${f.carb||0} 蛋${f.protein||0} 脂${f.fat||0}</div>
+      </div>
+      <button type="button" class="fav-chip-del" data-id="${f.id}" title="移除">✕</button>
+    </div>
+  `).join('');
+  container.querySelectorAll('.fav-chip').forEach(chip=>{
+    chip.addEventListener('click', function(e){
+      if(e.target.closest('.fav-chip-del')) return;
+      const fav = foodFavoritesCache.find(f=>f.id===this.dataset.id);
+      if(!fav) return;
+      addIntakeEntry({ name: fav.name, carb: fav.carb, protein: fav.protein, fat: fav.fat });
+      recordFoodFavorite(fav);
+    });
+  });
+  container.querySelectorAll('.fav-chip-del').forEach(btn=>{
+    btn.addEventListener('click', function(e){
+      e.stopPropagation();
+      deleteFavoriteFood(this.dataset.id);
+    });
+  });
+}
+
 document.getElementById('addIntakeBtn').addEventListener('click', function(){
   const nameEl = document.getElementById('intakeName');
   const carbEl = document.getElementById('intakeCarb');
@@ -1043,8 +1138,11 @@ document.getElementById('addIntakeBtn').addEventListener('click', function(){
   const protein = parseFloat(proteinEl.value) || 0;
   const fat = parseFloat(fatEl.value) || 0;
   if(carb<=0 && protein<=0 && fat<=0){ alert('请至少输入一项营养素含量'); return; }
-  const name = nameEl.value.trim() || `${MEAL_LABEL[currentIntakeMeal]}记录`;
-  addIntakeEntry({ name, carb: Math.round(carb*10)/10, protein: Math.round(protein*10)/10, fat: Math.round(fat*10)/10 });
+  const typedName = nameEl.value.trim();
+  const name = typedName || `${MEAL_LABEL[currentIntakeMeal]}记录`;
+  const macros = { carb: Math.round(carb*10)/10, protein: Math.round(protein*10)/10, fat: Math.round(fat*10)/10 };
+  addIntakeEntry({ name, ...macros });
+  if(typedName) recordFoodFavorite({ name: typedName, ...macros });
   nameEl.value=''; carbEl.value=''; proteinEl.value=''; fatEl.value='';
 });
 [document.getElementById('intakeName'), document.getElementById('intakeCarb'), document.getElementById('intakeProtein'), document.getElementById('intakeFat')].forEach(el=>{
@@ -1346,6 +1444,7 @@ async function init(){
     historyCache = await storageGet(HISTORY_KEY);
     goalCache = await storageGet(GOAL_KEY, { targetWeight: null, mode: 'cut' });
     intakeLogCache = await storageGet(INTAKE_LOG_KEY, {});
+    foodFavoritesCache = await storageGet(FOOD_FAVORITES_KEY, []);
     const savedInputs = await storageGet(CALC_INPUTS_KEY, null);
     if(savedInputs){
       document.getElementById('weight').value = savedInputs.weight;
@@ -1378,6 +1477,7 @@ async function init(){
 
   renderChartAndList();
   renderIntakeList();
+  renderFavoriteChips();
   form.dispatchEvent(new Event('submit'));
 }
 document.addEventListener('DOMContentLoaded', init);
