@@ -900,7 +900,8 @@
         <select id="pantryCategory">
           <option value="肉蛋海鲜">肉蛋海鲜</option>
           <option value="谷物薯类">谷物薯类</option>
-          <option value="蔬菜水果">蔬菜水果</option>
+          <option value="蔬菜">蔬菜</option>
+          <option value="水果">水果</option>
           <option value="奶制品">奶制品</option>
           <option value="豆制品坚果">豆制品坚果</option>
           <option value="调味/其他">调味/其他</option>
@@ -918,7 +919,7 @@
       <div class="pantry-list" id="pantryList"></div>
 
       <div class="suggest-panel">
-        <div class="fg-label" style="margin-bottom:12px;">为哪一餐生成搭配建议</div>
+        <div class="fg-label" style="margin-bottom:12px;">为哪一餐生成搭配建议 <span class="hint">（建议会自动包含至少一种水果，并鼓励多样搭配）</span></div>
         <div class="segmented" id="suggestMealToggle">
           <button type="button" class="seg-btn active" data-value="breakfast">早餐</button>
           <button type="button" class="seg-btn" data-value="lunch">午餐</button>
@@ -992,7 +993,7 @@ let pantryCache = []; // [{ id, name, carb, protein, fat, category }] per 100g
 let lastSuggestion = null; // { meal, items:[{...pantryItem, amount}] }
 let currentIntakeMeal = 'breakfast';
 let suggestMeal = 'breakfast'; // independent meal selection on the pantry page
-const PANTRY_CATEGORIES = ['肉蛋海鲜','谷物薯类','蔬菜水果','奶制品','豆制品坚果','调味/其他'];
+const PANTRY_CATEGORIES = ['肉蛋海鲜','谷物薯类','蔬菜','水果','奶制品','豆制品坚果','调味/其他'];
 let currentMacros = {
   total:{carb:0,protein:0,fat:0},
   breakfast:{carb:0,protein:0,fat:0},
@@ -1361,7 +1362,7 @@ function pantryItemHtml(it){
     <div class="pantry-item" data-id="${it.id}">
       <input type="checkbox" class="pantry-check" data-id="${it.id}" checked>
       <div class="pantry-item-info">
-        <span class="pantry-item-name">${it.name}</span>
+        <span class="pantry-item-name">${it.name}${it.category==='水果' ? ' 🍎' : ''}</span>
         <span class="pantry-item-macros">
           <span class="c">碳 ${it.carb}g/100g</span>
           <span class="p">蛋 ${it.protein}g/100g</span>
@@ -1377,7 +1378,7 @@ function renderPantryList(){
   const container = document.getElementById('pantryList');
   if(!container) return;
   if(pantryCache.length === 0){
-    container.innerHTML = `<div class="pantry-empty">还没有食材，先在上面添加几样吧（比如：鸡胸肉、大米、鸡蛋）</div>`;
+    container.innerHTML = `<div class="pantry-empty">还没有食材，先在上面添加几样吧（比如：鸡胸肉、大米、鸡蛋、苹果）</div>`;
     return;
   }
   let html = '';
@@ -1462,26 +1463,54 @@ function resetSuggestPanel(){
   lastSuggestion = null;
 }
 
+// 固定水果份量（克），用于保证每餐搭配建议里都含有水果
+const FRUIT_SERVING_G = 150;
+
 // 贪心分配：每次选出当前最能缩小「未达标缺口」的食材，加 5g，直到接近目标或没有更多帮助
+// 1) 先强制打底一份水果（挑选对当前缺口贡献最大的那种水果），保证每餐搭配建议都含水果
+// 2) 加入多样性惩罚（已分配越多的食材，后续再被选中的优先级越低），并降低单一食材上限，鼓励搭配多种食材
 function suggestPortions(items, remaining){
   const amounts = {};
   items.forEach(it=>amounts[it.id]=0);
   let rem = { carb: Math.max(0,remaining.carb), protein: Math.max(0,remaining.protein), fat: Math.max(0,remaining.fat) };
-  const STEP = 5;
-  const MAX_PER_ITEM = 400;
-  const MAX_ITERS = 400;
+
   function magnitude(r){ return Math.max(0,r.carb)+Math.max(0,r.protein)+Math.max(0,r.fat); }
+
+  // 第一步：强制加入一份水果打底
+  const fruitItems = items.filter(it => it.category === '水果');
+  if(fruitItems.length > 0){
+    let bestFruit = fruitItems[0], bestFruitScore = -Infinity;
+    for(const it of fruitItems){
+      const dCarb = it.carb/100*FRUIT_SERVING_G;
+      const dProtein = it.protein/100*FRUIT_SERVING_G;
+      const dFat = it.fat/100*FRUIT_SERVING_G;
+      const before = magnitude(rem);
+      const after = magnitude({ carb: rem.carb-dCarb, protein: rem.protein-dProtein, fat: rem.fat-dFat });
+      const score = before - after;
+      if(score > bestFruitScore){ bestFruitScore = score; bestFruit = it; }
+    }
+    amounts[bestFruit.id] = FRUIT_SERVING_G;
+    rem.carb -= bestFruit.carb/100*FRUIT_SERVING_G;
+    rem.protein -= bestFruit.protein/100*FRUIT_SERVING_G;
+    rem.fat -= bestFruit.fat/100*FRUIT_SERVING_G;
+  }
+
+  const STEP = 5;
+  const MAX_PER_ITEM = 200; // 降低单一食材上限，鼓励搭配多样
+  const MAX_ITERS = 400;
+  const DIVERSITY_PENALTY = 0.06; // 已分配越多，后续优先级越低，促使算法换用其他食材
   for(let iter=0; iter<MAX_ITERS; iter++){
     if(magnitude(rem) < 3) break;
     let bestItem=null, bestScore=-Infinity;
     for(const it of items){
-      if(amounts[it.id] >= MAX_PER_ITEM) continue;
+      const cap = it.category==='水果' ? FRUIT_SERVING_G : MAX_PER_ITEM;
+      if(amounts[it.id] >= cap) continue;
       const dCarb = it.carb/100*STEP;
       const dProtein = it.protein/100*STEP;
       const dFat = it.fat/100*STEP;
       const before = magnitude(rem);
       const after = magnitude({ carb: rem.carb-dCarb, protein: rem.protein-dProtein, fat: rem.fat-dFat });
-      const score = before - after;
+      const score = (before - after) - amounts[it.id]*DIVERSITY_PENALTY;
       if(score > bestScore){ bestScore = score; bestItem = it; }
     }
     if(!bestItem || bestScore <= 0.01) break;
@@ -1504,6 +1533,16 @@ document.getElementById('generateSuggestBtn').addEventListener('click', function
     lastSuggestion = null;
     return;
   }
+  const hasFruit = items.some(it => it.category === '水果');
+  if(!hasFruit){
+    const anyFruitInPantry = pantryCache.some(it => it.category === '水果');
+    resultsContainer.innerHTML = anyFruitInPantry
+      ? `<div class="suggest-empty">每餐搭配建议需要包含水果，请在上面勾选至少一种水果类食材</div>`
+      : `<div class="suggest-empty">食材库里还没有水果，请先在「水果」分类下添加一种（比如：苹果、香蕉）</div>`;
+    addBtn.style.display = 'none';
+    lastSuggestion = null;
+    return;
+  }
   const remaining = computeRemaining(suggestMeal);
   if(Math.max(0,remaining.carb)+Math.max(0,remaining.protein)+Math.max(0,remaining.fat) < 3){
     resultsContainer.innerHTML = `<div class="suggest-empty">这一餐的目标已经基本达标啦，无需再吃更多</div>`;
@@ -1521,7 +1560,7 @@ document.getElementById('generateSuggestBtn').addEventListener('click', function
   }
   resultsContainer.innerHTML = usedItems.map(it=>`
     <div class="suggest-result-item">
-      <span class="suggest-result-name">${it.name}</span>
+      <span class="suggest-result-name">${it.name}${it.category==='水果' ? ' 🍎' : ''}</span>
       <span class="suggest-result-amount">${amounts[it.id]} g</span>
     </div>
   `).join('');
