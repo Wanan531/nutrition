@@ -438,6 +438,53 @@
   .intake-day-summary .ids-val{font-family:'JetBrains Mono',monospace; font-size:15px; font-weight:700; color:var(--text); text-transform:none; letter-spacing:0;}
   .intake-day-summary .ids-val.over{color:var(--danger);}
 
+  /* ===== Pantry & suggestion ===== */
+  .pantry-section{margin-top:22px; border-top:1px solid var(--line); padding-top:20px;}
+  .pantry-list{display:flex; flex-direction:column; gap:8px; margin-bottom:14px;}
+  .pantry-item{
+    background:var(--panel-raised);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:10px 12px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .pantry-item input[type="checkbox"]{
+    width:20px; height:20px; flex-shrink:0; accent-color:var(--trend); cursor:pointer;
+  }
+  .pantry-item-info{display:flex; flex-direction:column; gap:3px; min-width:0; flex:1;}
+  .pantry-item-name{font-size:13px; color:var(--text); font-weight:600;}
+  .pantry-item-macros{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-faint); display:flex; gap:8px; flex-wrap:wrap;}
+  .pantry-item-macros .c{color:var(--carb);}
+  .pantry-item-macros .p{color:var(--protein);}
+  .pantry-item-macros .f{color:var(--fat);}
+  .pantry-empty{color:var(--text-faint); font-size:12px; padding:10px 0; text-align:center;}
+  .suggest-panel{
+    background:var(--panel-sunken);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:14px;
+    margin-top:14px;
+  }
+  .suggest-remain-row{
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px 14px;
+    font-family:'JetBrains Mono',monospace; font-size:12.5px; margin-bottom:12px;
+  }
+  .suggest-remain-row span{color:var(--text-dim);}
+  .suggest-remain-row .c{color:var(--carb);}
+  .suggest-remain-row .p{color:var(--protein);}
+  .suggest-remain-row .f{color:var(--fat);}
+  .suggest-results{display:flex; flex-direction:column; gap:8px; margin:12px 0;}
+  .suggest-result-item{
+    display:flex; justify-content:space-between; align-items:center;
+    background:var(--panel-raised); border:1px solid var(--line);
+    border-radius:10px; padding:10px 12px; gap:8px;
+  }
+  .suggest-result-name{font-size:13px; color:var(--text); font-weight:600;}
+  .suggest-result-amount{font-family:'JetBrains Mono',monospace; font-size:14px; font-weight:700; color:var(--trend);}
+  .suggest-empty{color:var(--text-faint); font-size:12px; text-align:center; padding:8px 0;}
+
   /* ===== Goal card ===== */
   .goal-card{
     background:var(--panel-sunken);
@@ -780,6 +827,28 @@
         <div class="intake-list" id="intakeList"></div>
         <div class="intake-day-summary" id="intakeDaySummary"></div>
       </div>
+
+      <div class="pantry-section">
+        <div class="section-title">家里食材库 <span class="note">按每 100 克记录营养素，用于生成搭配建议</span></div>
+
+        <div class="intake-form" id="pantryForm">
+          <input type="text" id="pantryName" placeholder="食材名称">
+          <input type="number" id="pantryCarb" placeholder="碳水/100g" min="0" step="0.1">
+          <input type="number" id="pantryProtein" placeholder="蛋白/100g" min="0" step="0.1">
+          <input type="number" id="pantryFat" placeholder="脂肪/100g" min="0" step="0.1">
+          <button type="button" class="btn btn-outline" id="addPantryBtn">添加食材</button>
+        </div>
+
+        <div class="pantry-list" id="pantryList"></div>
+
+        <div class="suggest-panel">
+          <div class="fg-label" style="margin-bottom:12px;">按当前分页（<span id="suggestMealLabel">早餐</span>）生成搭配建议</div>
+          <div class="suggest-remain-row" id="suggestRemainRow"></div>
+          <button type="button" class="btn btn-outline btn-sm" id="generateSuggestBtn">生成搭配建议</button>
+          <div class="suggest-results" id="suggestResults"></div>
+          <button type="button" class="btn" id="addSuggestBtn" style="display:none;">把建议加入本餐记录</button>
+        </div>
+      </div>
     </div>
 
     <div class="history-section">
@@ -844,6 +913,7 @@ const GOAL_KEY = 'weight_goal';
 const INTAKE_LOG_KEY = 'intake_log';
 const CALC_INPUTS_KEY = 'calc_inputs';
 const FOOD_FAVORITES_KEY = 'food_favorites';
+const PANTRY_KEY = 'pantry_items';
 
 const LOCAL_STORAGE_PREFIX = 'nutrition_telemetry::';
 const hasClaudeStorage = (typeof window.storage !== 'undefined' && window.storage !== null);
@@ -887,6 +957,8 @@ let historyCache = [];
 let goalCache = { targetWeight: null, mode: 'cut' };
 let intakeLogCache = {}; // { 'YYYY-MM-DD': { breakfast:[], lunch:[], dinner:[] } }
 let foodFavoritesCache = []; // [{ id, name, carb, protein, fat, count, lastUsed }]
+let pantryCache = []; // [{ id, name, carb, protein, fat }] per 100g
+let lastSuggestion = null; // { meal, items:[{...pantryItem, amount}] }
 let currentIntakeMeal = 'breakfast';
 let currentMacros = {
   total:{carb:0,protein:0,fat:0},
@@ -944,6 +1016,7 @@ document.querySelectorAll('#intakeTabs .intake-tab').forEach(tab=>{
     currentIntakeMeal = this.dataset.meal;
     renderIntakeProgress();
     renderIntakeList();
+    resetSuggestPanel();
   });
 });
 
@@ -1020,6 +1093,7 @@ function calculateDiet(e){
   currentMacros.dinner = { carb:Math.round(mealValues[2].carb*10)/10, protein:Math.round(mealValues[2].protein*10)/10, fat:Math.round(mealValues[2].fat*10)/10 };
   renderIntakeProgress();
   renderIntakeDaySummary();
+  renderSuggestRemainRow();
 
   storageSet(CALC_INPUTS_KEY, { weight, gender, trainingHours: hoursKey, dayType });
 
@@ -1050,6 +1124,7 @@ async function addIntakeEntry(entry){
   renderIntakeProgress();
   renderIntakeList();
   renderIntakeDaySummary();
+  renderSuggestRemainRow();
 }
 
 async function deleteIntakeEntry(id){
@@ -1059,6 +1134,7 @@ async function deleteIntakeEntry(id){
   renderIntakeProgress();
   renderIntakeList();
   renderIntakeDaySummary();
+  renderSuggestRemainRow();
 }
 
 // ============================================================
@@ -1226,6 +1302,193 @@ function renderIntakeDaySummary(){
   const over = targetCal>0 && consumedCal>targetCal;
   container.innerHTML = `<span>今日已摄入热量</span><span class="ids-val ${over?'over':''}">${consumedCal} / ${targetCal>0?targetCal:'--'} kcal</span>`;
 }
+
+// ============================================================
+// 食材库 & 搭配建议
+// ============================================================
+function renderPantryList(){
+  const container = document.getElementById('pantryList');
+  if(!container) return;
+  if(pantryCache.length === 0){
+    container.innerHTML = `<div class="pantry-empty">还没有食材，先在上面添加几样吧（比如：鸡胸肉、大米、鸡蛋）</div>`;
+    return;
+  }
+  container.innerHTML = pantryCache.map(it=>`
+    <div class="pantry-item" data-id="${it.id}">
+      <input type="checkbox" class="pantry-check" data-id="${it.id}" checked>
+      <div class="pantry-item-info">
+        <span class="pantry-item-name">${it.name}</span>
+        <span class="pantry-item-macros">
+          <span class="c">碳 ${it.carb}g/100g</span>
+          <span class="p">蛋 ${it.protein}g/100g</span>
+          <span class="f">脂 ${it.fat}g/100g</span>
+        </span>
+      </div>
+      <button class="btn-danger" data-id="${it.id}">删除</button>
+    </div>
+  `).join('');
+  container.querySelectorAll('.btn-danger').forEach(btn=>{
+    btn.addEventListener('click', function(){ deletePantryItem(this.dataset.id); });
+  });
+}
+
+async function addPantryItem(entry){
+  pantryCache.push({ id: Date.now().toString(36)+Math.random().toString(36).substr(2,5), ...entry });
+  await storageSet(PANTRY_KEY, pantryCache);
+  renderPantryList();
+}
+
+async function deletePantryItem(id){
+  pantryCache = pantryCache.filter(it=>it.id!==id);
+  await storageSet(PANTRY_KEY, pantryCache);
+  renderPantryList();
+  resetSuggestPanel();
+}
+
+document.getElementById('addPantryBtn').addEventListener('click', function(){
+  const nameEl = document.getElementById('pantryName');
+  const carbEl = document.getElementById('pantryCarb');
+  const proteinEl = document.getElementById('pantryProtein');
+  const fatEl = document.getElementById('pantryFat');
+  const name = nameEl.value.trim();
+  const carb = parseFloat(carbEl.value) || 0;
+  const protein = parseFloat(proteinEl.value) || 0;
+  const fat = parseFloat(fatEl.value) || 0;
+  if(!name){ alert('请输入食材名称'); return; }
+  if(carb<=0 && protein<=0 && fat<=0){ alert('请至少输入一项营养素含量（每100克）'); return; }
+  addPantryItem({ name, carb: Math.round(carb*10)/10, protein: Math.round(protein*10)/10, fat: Math.round(fat*10)/10 });
+  nameEl.value=''; carbEl.value=''; proteinEl.value=''; fatEl.value='';
+});
+[document.getElementById('pantryName'), document.getElementById('pantryCarb'), document.getElementById('pantryProtein'), document.getElementById('pantryFat')].forEach(el=>{
+  el.addEventListener('keydown', function(e){
+    if(e.key === 'Enter') document.getElementById('addPantryBtn').click();
+  });
+});
+
+function computeRemaining(meal){
+  const date = todayKey();
+  if(!intakeLogCache[date]) intakeLogCache[date] = { breakfast:[], lunch:[], dinner:[] };
+  if(!intakeLogCache[date][meal]) intakeLogCache[date][meal] = [];
+  const consumed = sumMealIntake(intakeLogCache[date][meal]);
+  const target = currentMacros[meal] || { carb:0, protein:0, fat:0 };
+  return {
+    carb: Math.round((target.carb - consumed.carb)*10)/10,
+    protein: Math.round((target.protein - consumed.protein)*10)/10,
+    fat: Math.round((target.fat - consumed.fat)*10)/10
+  };
+}
+
+function renderSuggestRemainRow(){
+  const row = document.getElementById('suggestRemainRow');
+  if(!row) return;
+  const rem = computeRemaining(currentIntakeMeal);
+  document.getElementById('suggestMealLabel').textContent = MEAL_LABEL[currentIntakeMeal];
+  row.innerHTML = `
+    <span>剩余目标：</span>
+    <span class="c">碳水 ${Math.max(0,rem.carb)}g</span>
+    <span class="p">蛋白 ${Math.max(0,rem.protein)}g</span>
+    <span class="f">脂肪 ${Math.max(0,rem.fat)}g</span>
+  `;
+}
+
+function resetSuggestPanel(){
+  renderSuggestRemainRow();
+  document.getElementById('suggestResults').innerHTML = '';
+  document.getElementById('addSuggestBtn').style.display = 'none';
+  lastSuggestion = null;
+}
+
+// 贪心分配：每次选出当前最能缩小「未达标缺口」的食材，加 5g，直到接近目标或没有更多帮助
+function suggestPortions(items, remaining){
+  const amounts = {};
+  items.forEach(it=>amounts[it.id]=0);
+  let rem = { carb: Math.max(0,remaining.carb), protein: Math.max(0,remaining.protein), fat: Math.max(0,remaining.fat) };
+  const STEP = 5;
+  const MAX_PER_ITEM = 400;
+  const MAX_ITERS = 400;
+  function magnitude(r){ return Math.max(0,r.carb)+Math.max(0,r.protein)+Math.max(0,r.fat); }
+  for(let iter=0; iter<MAX_ITERS; iter++){
+    if(magnitude(rem) < 3) break;
+    let bestItem=null, bestScore=-Infinity;
+    for(const it of items){
+      if(amounts[it.id] >= MAX_PER_ITEM) continue;
+      const dCarb = it.carb/100*STEP;
+      const dProtein = it.protein/100*STEP;
+      const dFat = it.fat/100*STEP;
+      const before = magnitude(rem);
+      const after = magnitude({ carb: rem.carb-dCarb, protein: rem.protein-dProtein, fat: rem.fat-dFat });
+      const score = before - after;
+      if(score > bestScore){ bestScore = score; bestItem = it; }
+    }
+    if(!bestItem || bestScore <= 0.01) break;
+    amounts[bestItem.id] += STEP;
+    rem.carb -= bestItem.carb/100*STEP;
+    rem.protein -= bestItem.protein/100*STEP;
+    rem.fat -= bestItem.fat/100*STEP;
+  }
+  return amounts;
+}
+
+document.getElementById('generateSuggestBtn').addEventListener('click', function(){
+  const checked = Array.from(document.querySelectorAll('.pantry-check:checked')).map(cb=>cb.dataset.id);
+  const items = pantryCache.filter(it=>checked.includes(it.id));
+  const resultsContainer = document.getElementById('suggestResults');
+  const addBtn = document.getElementById('addSuggestBtn');
+  if(items.length === 0){
+    resultsContainer.innerHTML = `<div class="suggest-empty">请先在上面勾选至少一种食材</div>`;
+    addBtn.style.display = 'none';
+    lastSuggestion = null;
+    return;
+  }
+  const remaining = computeRemaining(currentIntakeMeal);
+  if(Math.max(0,remaining.carb)+Math.max(0,remaining.protein)+Math.max(0,remaining.fat) < 3){
+    resultsContainer.innerHTML = `<div class="suggest-empty">这一餐的目标已经基本达标啦，无需再吃更多</div>`;
+    addBtn.style.display = 'none';
+    lastSuggestion = null;
+    return;
+  }
+  const amounts = suggestPortions(items, remaining);
+  const usedItems = items.filter(it=>amounts[it.id] > 0);
+  if(usedItems.length === 0){
+    resultsContainer.innerHTML = `<div class="suggest-empty">当前勾选的食材组合不太好匹配剩余目标，试试增加食材种类</div>`;
+    addBtn.style.display = 'none';
+    lastSuggestion = null;
+    return;
+  }
+  resultsContainer.innerHTML = usedItems.map(it=>`
+    <div class="suggest-result-item">
+      <span class="suggest-result-name">${it.name}</span>
+      <span class="suggest-result-amount">${amounts[it.id]} g</span>
+    </div>
+  `).join('');
+  lastSuggestion = { meal: currentIntakeMeal, items: usedItems.map(it=>({ ...it, amount: amounts[it.id] })) };
+  addBtn.style.display = 'block';
+});
+
+document.getElementById('addSuggestBtn').addEventListener('click', async function(){
+  if(!lastSuggestion) return;
+  const date = todayKey();
+  if(!intakeLogCache[date]) intakeLogCache[date] = { breakfast:[], lunch:[], dinner:[] };
+  if(!intakeLogCache[date][lastSuggestion.meal]) intakeLogCache[date][lastSuggestion.meal] = [];
+  lastSuggestion.items.forEach(it=>{
+    const grams = it.amount;
+    intakeLogCache[date][lastSuggestion.meal].push({
+      id: Date.now().toString(36)+Math.random().toString(36).substr(2,5),
+      name: `${it.name} ${grams}g`,
+      carb: Math.round(it.carb/100*grams*10)/10,
+      protein: Math.round(it.protein/100*grams*10)/10,
+      fat: Math.round(it.fat/100*grams*10)/10
+    });
+  });
+  await storageSet(INTAKE_LOG_KEY, intakeLogCache);
+  renderIntakeProgress();
+  renderIntakeList();
+  renderIntakeDaySummary();
+  renderSuggestRemainRow();
+  document.getElementById('suggestResults').innerHTML = `<div class="suggest-empty">已加入本餐记录 ✓</div>`;
+  document.getElementById('addSuggestBtn').style.display = 'none';
+  lastSuggestion = null;
+});
 
 // ============================================================
 // 体重历史 & 图表
@@ -1445,6 +1708,7 @@ async function init(){
     goalCache = await storageGet(GOAL_KEY, { targetWeight: null, mode: 'cut' });
     intakeLogCache = await storageGet(INTAKE_LOG_KEY, {});
     foodFavoritesCache = await storageGet(FOOD_FAVORITES_KEY, []);
+    pantryCache = await storageGet(PANTRY_KEY, []);
     const savedInputs = await storageGet(CALC_INPUTS_KEY, null);
     if(savedInputs){
       document.getElementById('weight').value = savedInputs.weight;
@@ -1478,6 +1742,7 @@ async function init(){
   renderChartAndList();
   renderIntakeList();
   renderFavoriteChips();
+  renderPantryList();
   form.dispatchEvent(new Event('submit'));
 }
 document.addEventListener('DOMContentLoaded', init);
