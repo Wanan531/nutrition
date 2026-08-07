@@ -438,9 +438,16 @@
   .intake-day-summary .ids-val{font-family:'JetBrains Mono',monospace; font-size:15px; font-weight:700; color:var(--text); text-transform:none; letter-spacing:0;}
   .intake-day-summary .ids-val.over{color:var(--danger);}
 
+  /* ===== Page-level tabs ===== */
+  .page-view{animation:fadeUp 0.35s ease;}
+
   /* ===== Pantry & suggestion ===== */
-  .pantry-section{margin-top:22px; border-top:1px solid var(--line); padding-top:20px;}
-  .pantry-list{display:flex; flex-direction:column; gap:8px; margin-bottom:14px;}
+  .pantry-list{display:flex; flex-direction:column; gap:18px; margin-bottom:14px;}
+  .pantry-cat-group{display:flex; flex-direction:column; gap:8px;}
+  .pantry-cat-label{
+    font-family:'Oswald',sans-serif; font-size:11px; letter-spacing:0.08em; text-transform:uppercase;
+    color:var(--text-faint); padding-bottom:2px; border-bottom:1px dashed var(--line-soft);
+  }
   .pantry-item{
     background:var(--panel-raised);
     border:1px solid var(--line);
@@ -679,6 +686,12 @@
   </div>
 
   <div class="body-pad">
+    <div class="segmented" id="pageTabs" style="margin-bottom:18px;">
+      <button type="button" class="seg-btn active" data-value="main">训练营养</button>
+      <button type="button" class="seg-btn" data-value="pantry">食材库</button>
+    </div>
+
+    <div class="page-view" id="pageMain">
     <form id="calcForm">
       <div class="form-group">
         <div class="fg-label">性别</div>
@@ -827,28 +840,6 @@
         <div class="intake-list" id="intakeList"></div>
         <div class="intake-day-summary" id="intakeDaySummary"></div>
       </div>
-
-      <div class="pantry-section">
-        <div class="section-title">家里食材库 <span class="note">按每 100 克记录营养素，用于生成搭配建议</span></div>
-
-        <div class="intake-form" id="pantryForm">
-          <input type="text" id="pantryName" placeholder="食材名称">
-          <input type="number" id="pantryCarb" placeholder="碳水/100g" min="0" step="0.1">
-          <input type="number" id="pantryProtein" placeholder="蛋白/100g" min="0" step="0.1">
-          <input type="number" id="pantryFat" placeholder="脂肪/100g" min="0" step="0.1">
-          <button type="button" class="btn btn-outline" id="addPantryBtn">添加食材</button>
-        </div>
-
-        <div class="pantry-list" id="pantryList"></div>
-
-        <div class="suggest-panel">
-          <div class="fg-label" style="margin-bottom:12px;">按当前分页（<span id="suggestMealLabel">早餐</span>）生成搭配建议</div>
-          <div class="suggest-remain-row" id="suggestRemainRow"></div>
-          <button type="button" class="btn btn-outline btn-sm" id="generateSuggestBtn">生成搭配建议</button>
-          <div class="suggest-results" id="suggestResults"></div>
-          <button type="button" class="btn" id="addSuggestBtn" style="display:none;">把建议加入本餐记录</button>
-        </div>
-      </div>
     </div>
 
     <div class="history-section">
@@ -897,6 +888,46 @@
       <div class="chart-container"><canvas id="weightChart"></canvas></div>
       <div class="history-list" id="historyList">
         <div class="empty-state">还没有记录，快保存第一条吧</div>
+      </div>
+    </div>
+    </div>
+
+    <div class="page-view" id="pagePantry" style="display:none;">
+      <div class="section-title">家里食材库 <span class="note">按分类整理，每 100 克记录营养素，用于生成搭配建议</span></div>
+
+      <div class="form-group">
+        <div class="fg-label">食材分类</div>
+        <select id="pantryCategory">
+          <option value="肉蛋海鲜">肉蛋海鲜</option>
+          <option value="谷物薯类">谷物薯类</option>
+          <option value="蔬菜水果">蔬菜水果</option>
+          <option value="奶制品">奶制品</option>
+          <option value="豆制品坚果">豆制品坚果</option>
+          <option value="调味/其他">调味/其他</option>
+        </select>
+      </div>
+
+      <div class="intake-form" id="pantryForm">
+        <input type="text" id="pantryName" placeholder="食材名称">
+        <input type="number" id="pantryCarb" placeholder="碳水/100g" min="0" step="0.1">
+        <input type="number" id="pantryProtein" placeholder="蛋白/100g" min="0" step="0.1">
+        <input type="number" id="pantryFat" placeholder="脂肪/100g" min="0" step="0.1">
+        <button type="button" class="btn btn-outline" id="addPantryBtn">添加食材</button>
+      </div>
+
+      <div class="pantry-list" id="pantryList"></div>
+
+      <div class="suggest-panel">
+        <div class="fg-label" style="margin-bottom:12px;">为哪一餐生成搭配建议</div>
+        <div class="segmented" id="suggestMealToggle">
+          <button type="button" class="seg-btn active" data-value="breakfast">早餐</button>
+          <button type="button" class="seg-btn" data-value="lunch">午餐</button>
+          <button type="button" class="seg-btn" data-value="dinner">晚餐</button>
+        </div>
+        <div class="suggest-remain-row" id="suggestRemainRow" style="margin-top:12px;"></div>
+        <button type="button" class="btn btn-outline btn-sm" id="generateSuggestBtn">生成搭配建议</button>
+        <div class="suggest-results" id="suggestResults"></div>
+        <button type="button" class="btn" id="addSuggestBtn" style="display:none;">把建议加入该餐记录</button>
       </div>
     </div>
 
@@ -957,9 +988,11 @@ let historyCache = [];
 let goalCache = { targetWeight: null, mode: 'cut' };
 let intakeLogCache = {}; // { 'YYYY-MM-DD': { breakfast:[], lunch:[], dinner:[] } }
 let foodFavoritesCache = []; // [{ id, name, carb, protein, fat, count, lastUsed }]
-let pantryCache = []; // [{ id, name, carb, protein, fat }] per 100g
+let pantryCache = []; // [{ id, name, carb, protein, fat, category }] per 100g
 let lastSuggestion = null; // { meal, items:[{...pantryItem, amount}] }
 let currentIntakeMeal = 'breakfast';
+let suggestMeal = 'breakfast'; // independent meal selection on the pantry page
+const PANTRY_CATEGORIES = ['肉蛋海鲜','谷物薯类','蔬菜水果','奶制品','豆制品坚果','调味/其他'];
 let currentMacros = {
   total:{carb:0,protein:0,fat:0},
   breakfast:{carb:0,protein:0,fat:0},
@@ -1016,6 +1049,23 @@ document.querySelectorAll('#intakeTabs .intake-tab').forEach(tab=>{
     currentIntakeMeal = this.dataset.meal;
     renderIntakeProgress();
     renderIntakeList();
+  });
+});
+document.querySelectorAll('#pageTabs .seg-btn').forEach(btn=>{
+  btn.addEventListener('click', function(){
+    document.querySelectorAll('#pageTabs .seg-btn').forEach(b=>b.classList.remove('active'));
+    this.classList.add('active');
+    const page = this.dataset.value;
+    document.getElementById('pageMain').style.display = page==='main' ? 'block' : 'none';
+    document.getElementById('pagePantry').style.display = page==='pantry' ? 'block' : 'none';
+    if(page==='pantry') renderSuggestRemainRow();
+  });
+});
+document.querySelectorAll('#suggestMealToggle .seg-btn').forEach(btn=>{
+  btn.addEventListener('click', function(){
+    document.querySelectorAll('#suggestMealToggle .seg-btn').forEach(b=>b.classList.remove('active'));
+    this.classList.add('active');
+    suggestMeal = this.dataset.value;
     resetSuggestPanel();
   });
 });
@@ -1306,14 +1356,8 @@ function renderIntakeDaySummary(){
 // ============================================================
 // 食材库 & 搭配建议
 // ============================================================
-function renderPantryList(){
-  const container = document.getElementById('pantryList');
-  if(!container) return;
-  if(pantryCache.length === 0){
-    container.innerHTML = `<div class="pantry-empty">还没有食材，先在上面添加几样吧（比如：鸡胸肉、大米、鸡蛋）</div>`;
-    return;
-  }
-  container.innerHTML = pantryCache.map(it=>`
+function pantryItemHtml(it){
+  return `
     <div class="pantry-item" data-id="${it.id}">
       <input type="checkbox" class="pantry-check" data-id="${it.id}" checked>
       <div class="pantry-item-info">
@@ -1326,7 +1370,26 @@ function renderPantryList(){
       </div>
       <button class="btn-danger" data-id="${it.id}">删除</button>
     </div>
-  `).join('');
+  `;
+}
+
+function renderPantryList(){
+  const container = document.getElementById('pantryList');
+  if(!container) return;
+  if(pantryCache.length === 0){
+    container.innerHTML = `<div class="pantry-empty">还没有食材，先在上面添加几样吧（比如：鸡胸肉、大米、鸡蛋）</div>`;
+    return;
+  }
+  let html = '';
+  PANTRY_CATEGORIES.forEach(cat=>{
+    const items = pantryCache.filter(it=>(it.category || '调味/其他') === cat);
+    if(items.length === 0) return;
+    html += `<div class="pantry-cat-group">
+      <div class="pantry-cat-label">${cat} · ${items.length}</div>
+      ${items.map(pantryItemHtml).join('')}
+    </div>`;
+  });
+  container.innerHTML = html;
   container.querySelectorAll('.btn-danger').forEach(btn=>{
     btn.addEventListener('click', function(){ deletePantryItem(this.dataset.id); });
   });
@@ -1350,13 +1413,15 @@ document.getElementById('addPantryBtn').addEventListener('click', function(){
   const carbEl = document.getElementById('pantryCarb');
   const proteinEl = document.getElementById('pantryProtein');
   const fatEl = document.getElementById('pantryFat');
+  const categoryEl = document.getElementById('pantryCategory');
   const name = nameEl.value.trim();
   const carb = parseFloat(carbEl.value) || 0;
   const protein = parseFloat(proteinEl.value) || 0;
   const fat = parseFloat(fatEl.value) || 0;
+  const category = categoryEl ? categoryEl.value : '调味/其他';
   if(!name){ alert('请输入食材名称'); return; }
   if(carb<=0 && protein<=0 && fat<=0){ alert('请至少输入一项营养素含量（每100克）'); return; }
-  addPantryItem({ name, carb: Math.round(carb*10)/10, protein: Math.round(protein*10)/10, fat: Math.round(fat*10)/10 });
+  addPantryItem({ name, carb: Math.round(carb*10)/10, protein: Math.round(protein*10)/10, fat: Math.round(fat*10)/10, category });
   nameEl.value=''; carbEl.value=''; proteinEl.value=''; fatEl.value='';
 });
 [document.getElementById('pantryName'), document.getElementById('pantryCarb'), document.getElementById('pantryProtein'), document.getElementById('pantryFat')].forEach(el=>{
@@ -1381,10 +1446,9 @@ function computeRemaining(meal){
 function renderSuggestRemainRow(){
   const row = document.getElementById('suggestRemainRow');
   if(!row) return;
-  const rem = computeRemaining(currentIntakeMeal);
-  document.getElementById('suggestMealLabel').textContent = MEAL_LABEL[currentIntakeMeal];
+  const rem = computeRemaining(suggestMeal);
   row.innerHTML = `
-    <span>剩余目标：</span>
+    <span>${MEAL_LABEL[suggestMeal]}剩余目标：</span>
     <span class="c">碳水 ${Math.max(0,rem.carb)}g</span>
     <span class="p">蛋白 ${Math.max(0,rem.protein)}g</span>
     <span class="f">脂肪 ${Math.max(0,rem.fat)}g</span>
@@ -1440,7 +1504,7 @@ document.getElementById('generateSuggestBtn').addEventListener('click', function
     lastSuggestion = null;
     return;
   }
-  const remaining = computeRemaining(currentIntakeMeal);
+  const remaining = computeRemaining(suggestMeal);
   if(Math.max(0,remaining.carb)+Math.max(0,remaining.protein)+Math.max(0,remaining.fat) < 3){
     resultsContainer.innerHTML = `<div class="suggest-empty">这一餐的目标已经基本达标啦，无需再吃更多</div>`;
     addBtn.style.display = 'none';
@@ -1461,7 +1525,7 @@ document.getElementById('generateSuggestBtn').addEventListener('click', function
       <span class="suggest-result-amount">${amounts[it.id]} g</span>
     </div>
   `).join('');
-  lastSuggestion = { meal: currentIntakeMeal, items: usedItems.map(it=>({ ...it, amount: amounts[it.id] })) };
+  lastSuggestion = { meal: suggestMeal, items: usedItems.map(it=>({ ...it, amount: amounts[it.id] })) };
   addBtn.style.display = 'block';
 });
 
