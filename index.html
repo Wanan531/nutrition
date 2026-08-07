@@ -919,7 +919,7 @@
       <div class="pantry-list" id="pantryList"></div>
 
       <div class="suggest-panel">
-        <div class="fg-label" style="margin-bottom:12px;">为哪一餐生成搭配建议 <span class="hint">（建议会自动包含至少一种水果，并鼓励多样搭配）</span></div>
+        <div class="fg-label" style="margin-bottom:12px;">为哪一餐生成搭配建议 <span class="hint">（自动含一种水果，并从勾选食材里挑最合适的几种，不会全部用上）</span></div>
         <div class="segmented" id="suggestMealToggle">
           <button type="button" class="seg-btn active" data-value="breakfast">早餐</button>
           <button type="button" class="seg-btn" data-value="lunch">午餐</button>
@@ -1465,16 +1465,23 @@ function resetSuggestPanel(){
 
 // 固定水果份量（克），用于保证每餐搭配建议里都含有水果
 const FRUIT_SERVING_G = 150;
+// 一份搭配建议最多用到几种食材（含水果），避免为了「多样」把所有勾选食材都凑进来
+const MAX_DISTINCT_ITEMS = 4;
+// 非水果食材若最终分配份量小于这个阈值，视为凑数，直接舍弃
+const MIN_MEANINGFUL_GRAMS = 15;
 
 // 贪心分配：每次选出当前最能缩小「未达标缺口」的食材，加 5g，直到接近目标或没有更多帮助
 // 1) 先强制打底一份水果（挑选对当前缺口贡献最大的那种水果），保证每餐搭配建议都含水果
-// 2) 加入多样性惩罚（已分配越多的食材，后续再被选中的优先级越低），并降低单一食材上限，鼓励搭配多种食材
+// 2) 一旦已选中的食材种类达到 MAX_DISTINCT_ITEMS，就不再引入新食材，只给已选中的加量——
+//    这样搭配建议只会用勾选食材里最合适的少数几种，而不是全部用上
+// 3) 结束后过滤掉份量过小（<15g）的非水果食材，避免出现凑数的极小份量
 function suggestPortions(items, remaining){
   const amounts = {};
   items.forEach(it=>amounts[it.id]=0);
   let rem = { carb: Math.max(0,remaining.carb), protein: Math.max(0,remaining.protein), fat: Math.max(0,remaining.fat) };
 
   function magnitude(r){ return Math.max(0,r.carb)+Math.max(0,r.protein)+Math.max(0,r.fat); }
+  const usedItemIds = new Set();
 
   // 第一步：强制加入一份水果打底
   const fruitItems = items.filter(it => it.category === '水果');
@@ -1490,21 +1497,24 @@ function suggestPortions(items, remaining){
       if(score > bestFruitScore){ bestFruitScore = score; bestFruit = it; }
     }
     amounts[bestFruit.id] = FRUIT_SERVING_G;
+    usedItemIds.add(bestFruit.id);
     rem.carb -= bestFruit.carb/100*FRUIT_SERVING_G;
     rem.protein -= bestFruit.protein/100*FRUIT_SERVING_G;
     rem.fat -= bestFruit.fat/100*FRUIT_SERVING_G;
   }
 
   const STEP = 5;
-  const MAX_PER_ITEM = 200; // 降低单一食材上限，鼓励搭配多样
+  const MAX_PER_ITEM = 250;
   const MAX_ITERS = 400;
-  const DIVERSITY_PENALTY = 0.06; // 已分配越多，后续优先级越低，促使算法换用其他食材
+  const DIVERSITY_PENALTY = 0.06; // 已分配越多，后续优先级越低，促使算法在种类上限内换用更合适的食材
   for(let iter=0; iter<MAX_ITERS; iter++){
     if(magnitude(rem) < 3) break;
     let bestItem=null, bestScore=-Infinity;
     for(const it of items){
       const cap = it.category==='水果' ? FRUIT_SERVING_G : MAX_PER_ITEM;
       if(amounts[it.id] >= cap) continue;
+      // 已选够种类数时，只允许继续给已选中的食材加量，不再引入新食材
+      if(usedItemIds.size >= MAX_DISTINCT_ITEMS && !usedItemIds.has(it.id)) continue;
       const dCarb = it.carb/100*STEP;
       const dProtein = it.protein/100*STEP;
       const dFat = it.fat/100*STEP;
@@ -1515,10 +1525,19 @@ function suggestPortions(items, remaining){
     }
     if(!bestItem || bestScore <= 0.01) break;
     amounts[bestItem.id] += STEP;
+    usedItemIds.add(bestItem.id);
     rem.carb -= bestItem.carb/100*STEP;
     rem.protein -= bestItem.protein/100*STEP;
     rem.fat -= bestItem.fat/100*STEP;
   }
+
+  // 过滤掉份量过小的非水果食材（凑数），让结果只保留真正有意义的搭配
+  items.forEach(it=>{
+    if(it.category !== '水果' && amounts[it.id] > 0 && amounts[it.id] < MIN_MEANINGFUL_GRAMS){
+      amounts[it.id] = 0;
+    }
+  });
+
   return amounts;
 }
 
