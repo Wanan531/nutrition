@@ -345,99 +345,6 @@
   .history-section{margin-top:28px; border-top:1px solid var(--line); padding-top:22px;}
   .history-section .section-title{font-size:14px; margin-bottom:16px;}
 
-  /* ===== Meal intake logging ===== */
-  .meal-intake-section{margin-top:22px; border-top:1px solid var(--line); padding-top:20px;}
-  .intake-tabs{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px;}
-  .intake-tab{
-    padding:9px 15px;
-    min-height:44px;
-    touch-action:manipulation;
-    border-radius:20px;
-    border:1px solid var(--line);
-    background:var(--panel-sunken);
-    font-family:'Oswald',sans-serif;
-    font-weight:500;
-    font-size:12px;
-    letter-spacing:0.03em;
-    color:var(--text-dim);
-    cursor:pointer;
-    transition:all 0.15s;
-  }
-  .intake-tab.active{background:var(--trend); border-color:var(--trend); color:#06111d;}
-  .intake-tab:hover:not(.active){border-color:var(--text-faint);}
-  .intake-progress{
-    background:var(--panel-sunken);
-    border:1px solid var(--line);
-    border-radius:14px;
-    padding:14px 14px;
-    margin-bottom:14px;
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-  }
-  .intake-progress-row{
-    display:flex; align-items:center; justify-content:space-between;
-    font-family:'Oswald',sans-serif; font-size:11.5px; letter-spacing:0.03em;
-    text-transform:uppercase; color:var(--text-dim); margin-bottom:6px;
-  }
-  .intake-progress-row .ipv{font-family:'JetBrains Mono',monospace; text-transform:none; letter-spacing:0; color:var(--text); font-size:12.5px; font-weight:600;}
-  .intake-progress-row .ipv.over{color:var(--danger);}
-  .intake-bar-track{
-    height:6px; border-radius:10px; background:var(--panel-raised);
-    border:1px solid var(--line); overflow:hidden;
-  }
-  .intake-bar-fill{ height:100%; border-radius:10px; width:0%; transition:width 0.4s ease; }
-  .intake-form{display:flex; flex-direction:column; gap:8px; margin-bottom:14px;}
-  .intake-form input{width:100%;}
-  .intake-form .btn{width:100%;}
-  .fav-foods-label{
-    font-family:'Oswald',sans-serif; font-size:11px; letter-spacing:0.05em; text-transform:uppercase;
-    color:var(--text-faint); margin-bottom:8px;
-  }
-  .fav-chips{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px;}
-  .fav-chip{
-    display:flex; align-items:center; gap:8px;
-    background:var(--panel-raised); border:1px solid var(--line);
-    border-radius:20px; padding:8px 8px 8px 14px;
-    cursor:pointer; touch-action:manipulation; transition:border-color 0.15s, background 0.15s;
-  }
-  .fav-chip:hover{border-color:var(--trend); background:var(--trend-dim);}
-  .fav-chip-name{font-size:12.5px; color:var(--text); font-weight:600;}
-  .fav-chip-macros{font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-faint);}
-  .fav-chip-del{
-    background:none; border:none; color:var(--text-faint); font-size:14px;
-    cursor:pointer; padding:4px 6px; line-height:1; border-radius:50%;
-    min-width:26px; min-height:26px;
-  }
-  .fav-chip-del:hover{background:#ff5c7222; color:var(--danger);}
-  .intake-list{display:flex; flex-direction:column; gap:8px; margin-bottom:14px;}
-  .intake-item{
-    background:var(--panel-raised);
-    border:1px solid var(--line);
-    border-radius:12px;
-    padding:10px 12px;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
-  }
-  .intake-item-info{display:flex; flex-direction:column; gap:3px; min-width:0;}
-  .intake-item-name{font-size:13px; color:var(--text); font-weight:600;}
-  .intake-item-macros{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-faint); display:flex; gap:8px; flex-wrap:wrap;}
-  .intake-item-macros .c{color:var(--carb);}
-  .intake-item-macros .p{color:var(--protein);}
-  .intake-item-macros .f{color:var(--fat);}
-  .intake-empty{color:var(--text-faint); font-size:12px; padding:10px 0; text-align:center;}
-  .intake-day-summary{
-    display:flex; align-items:center; justify-content:space-between;
-    background:var(--panel-raised); border:1px solid var(--line);
-    border-radius:12px; padding:12px 14px; font-family:'Oswald',sans-serif;
-    font-size:12px; letter-spacing:0.03em; text-transform:uppercase; color:var(--text-dim);
-    gap:8px; flex-wrap:wrap;
-  }
-  .intake-day-summary .ids-val{font-family:'JetBrains Mono',monospace; font-size:15px; font-weight:700; color:var(--text); text-transform:none; letter-spacing:0;}
-  .intake-day-summary .ids-val.over{color:var(--danger);}
-
   /* ===== Page-level tabs ===== */
   .page-view{animation:fadeUp 0.35s ease;}
 
@@ -558,7 +465,6 @@
     .ring-num{font-size:16px;}
     .rings-row{gap:4px;}
     .meal-card{padding:12px 12px;}
-    .intake-form input, .custom-form input{font-size:15px;}
   }
 
   /* ============================================================
@@ -607,10 +513,6 @@
     }
     .meal-macros{display:contents;}
 
-    .intake-form{flex-direction:row; flex-wrap:wrap; align-items:stretch;}
-    .intake-form input{flex:1 1 110px; width:auto;}
-    .intake-form .btn{flex:0 0 auto; padding:0 22px; width:auto;}
-
     .goal-form{flex-direction:row; flex-wrap:wrap; align-items:stretch;}
     .goal-form input[type="number"]{flex:1 1 140px; width:auto;}
     .goal-form .segmented{flex:1 1 220px; width:auto;}
@@ -647,7 +549,7 @@
 
       <div class="form-group">
         <div class="fg-label">体重（公斤）</div>
-        <input type="number" id="weight" value="75" min="30" max="200" step="0.5" required>
+        <input type="number" id="weight" value="75" min="30" max="200" step="0.01" required>
       </div>
 
       <div class="form-group">
@@ -755,55 +657,6 @@
           </div>
         </div>
       </div>
-
-      <div class="meal-intake-section">
-        <div class="section-title">每餐达标记录 <span class="note">记录实际吃了多少，看是否达标</span></div>
-
-        <div class="intake-tabs" id="intakeTabs">
-          <button class="intake-tab active" data-meal="breakfast">早餐</button>
-          <button class="intake-tab" data-meal="lunch">午餐</button>
-          <button class="intake-tab" data-meal="dinner">晚餐</button>
-        </div>
-
-        <div class="intake-progress" id="intakeProgress"></div>
-
-        <div id="favoriteFoodsBlock" style="display:none;">
-          <div class="fav-foods-label">常用食物 · 点一下直接加进这一餐</div>
-          <div class="fav-chips" id="favoriteFoodsChips"></div>
-        </div>
-
-        <div class="intake-form">
-          <input type="text" id="intakeName" placeholder="食物/菜名（可选）">
-          <input type="number" id="intakeCarb" placeholder="碳水(g)" min="0" step="0.1">
-          <input type="number" id="intakeProtein" placeholder="蛋白(g)" min="0" step="0.1">
-          <input type="number" id="intakeFat" placeholder="脂肪(g)" min="0" step="0.1">
-          <button type="button" class="btn btn-outline" id="addIntakeBtn">添加记录</button>
-        </div>
-
-        <div class="intake-list" id="intakeList"></div>
-        <div class="intake-day-summary" id="intakeDaySummary"></div>
-      </div>
-
-      <div class="meal-intake-section" id="trainingSnackSection" style="display:none;">
-        <div class="section-title">训练日加餐 <span class="note">蛋白粉 + 香蕉，只在训练日显示；点一下即可计入今日摄入（额外加餐，不算进三餐目标）</span></div>
-
-        <div class="fav-foods-label">加餐配方 · 按你常吃的一份调整</div>
-        <div class="intake-form">
-          <input type="number" id="snackPowderCarb" placeholder="蛋白粉 碳水(g)" min="0" step="0.1">
-          <input type="number" id="snackPowderProtein" placeholder="蛋白粉 蛋白(g)" min="0" step="0.1">
-          <input type="number" id="snackPowderFat" placeholder="蛋白粉 脂肪(g)" min="0" step="0.1">
-        </div>
-        <div class="intake-form">
-          <input type="number" id="snackBananaCarb" placeholder="香蕉 碳水(g)" min="0" step="0.1">
-          <input type="number" id="snackBananaProtein" placeholder="香蕉 蛋白(g)" min="0" step="0.1">
-          <input type="number" id="snackBananaFat" placeholder="香蕉 脂肪(g)" min="0" step="0.1">
-          <button type="button" class="btn btn-outline" id="saveSnackSettingsBtn">保存配方</button>
-        </div>
-
-        <button type="button" class="btn" id="logSnackBtn" style="margin-top:10px;">记录今日加餐（蛋白粉 + 香蕉）</button>
-
-        <div class="intake-list" id="snackList" style="margin-top:12px;"></div>
-      </div>
     </div>
 
     <div class="history-section">
@@ -811,7 +664,7 @@
 
       <div class="goal-card">
         <div class="goal-form">
-          <input type="number" id="targetWeight" placeholder="目标体重 (kg)" step="0.1" min="20" max="200">
+          <input type="number" id="targetWeight" placeholder="目标体重 (kg)" step="0.01" min="20" max="200">
           <div class="segmented" id="goalModeToggle">
             <button type="button" class="seg-btn active" data-value="cut">减脂</button>
             <button type="button" class="seg-btn" data-value="bulk">增肌</button>
@@ -846,7 +699,7 @@
 
       <div class="history-form">
         <input type="date" id="historyDate">
-        <input type="number" id="historyWeight" placeholder="体重 (kg)" step="0.1" min="20" max="200">
+        <input type="number" id="historyWeight" placeholder="体重 (kg)" step="0.01" min="20" max="200">
         <button type="button" class="btn btn-outline" id="saveHistoryBtn">保存今日体重</button>
       </div>
       <div class="chart-container"><canvas id="weightChart"></canvas></div>
@@ -865,10 +718,7 @@
 // ============================================================
 const HISTORY_KEY = 'weight_history';
 const GOAL_KEY = 'weight_goal';
-const INTAKE_LOG_KEY = 'intake_log';
 const CALC_INPUTS_KEY = 'calc_inputs';
-const FOOD_FAVORITES_KEY = 'food_favorites';
-const SNACK_RECIPE_KEY = 'training_snack_recipe';
 
 const LOCAL_STORAGE_PREFIX = 'nutrition_telemetry::';
 const hasClaudeStorage = (typeof window.storage !== 'undefined' && window.storage !== null);
@@ -910,19 +760,6 @@ async function storageSet(key, value){
 
 let historyCache = [];
 let goalCache = { targetWeight: null, mode: 'cut' };
-let intakeLogCache = {}; // { 'YYYY-MM-DD': { breakfast:[], lunch:[], dinner:[] } }
-let foodFavoritesCache = []; // [{ id, name, carb, protein, fat, count, lastUsed }]
-let snackRecipeCache = { // 训练日加餐：蛋白粉 + 香蕉，默认给一个大致的常见份量，可在页面里改
-  powder: { carb:3, protein:24, fat:1.5 },
-  banana: { carb:27, protein:1.3, fat:0.4 }
-};
-let currentIntakeMeal = 'breakfast';
-let currentMacros = {
-  total:{carb:0,protein:0,fat:0},
-  breakfast:{carb:0,protein:0,fat:0},
-  lunch:{carb:0,protein:0,fat:0},
-  dinner:{carb:0,protein:0,fat:0}
-};
 
 // ============================================================
 // 核心计算数据
@@ -950,14 +787,8 @@ document.querySelectorAll('#dayToggle .seg-btn').forEach(btn=>{
     document.querySelectorAll('#dayToggle .seg-btn').forEach(b=>b.classList.remove('active'));
     this.classList.add('active');
     dayTypeInput.value = this.dataset.value;
-    toggleTrainingSnackVisibility();
   });
 });
-function toggleTrainingSnackVisibility(){
-  const section = document.getElementById('trainingSnackSection');
-  if(!section) return;
-  section.style.display = dayTypeInput.value === 'training' ? 'block' : 'none';
-}
 document.querySelectorAll('#genderToggle .seg-btn').forEach(btn=>{
   btn.addEventListener('click', function(){
     document.querySelectorAll('#genderToggle .seg-btn').forEach(b=>b.classList.remove('active'));
@@ -970,15 +801,6 @@ document.querySelectorAll('#goalModeToggle .seg-btn').forEach(btn=>{
     document.querySelectorAll('#goalModeToggle .seg-btn').forEach(b=>b.classList.remove('active'));
     this.classList.add('active');
     document.getElementById('goalMode').value = this.dataset.value;
-  });
-});
-document.querySelectorAll('#intakeTabs .intake-tab').forEach(tab=>{
-  tab.addEventListener('click', function(){
-    document.querySelectorAll('#intakeTabs .intake-tab').forEach(t=>t.classList.remove('active'));
-    this.classList.add('active');
-    currentIntakeMeal = this.dataset.meal;
-    renderIntakeProgress();
-    renderIntakeList();
   });
 });
 
@@ -1024,7 +846,6 @@ function calculateDiet(e){
   document.getElementById('fatValue').textContent = fatR;
   document.getElementById('caloriesValue').innerHTML = Math.round(cal) + ' <span>kcal / 日</span>';
   mealTag.textContent = dayLabel;
-  toggleTrainingSnackVisibility();
 
   const carbCal = carbR*4, proteinCal = proteinR*4, fatCal = fatR*9;
   const carbPct = Math.round((carbCal/cal)*100);
@@ -1050,13 +871,6 @@ function calculateDiet(e){
     document.getElementById(id+'Fat').innerHTML = (Math.round(mealValues[i].fat*10)/10) + '<span class="u">g 脂肪</span>';
   });
 
-  currentMacros.total = { carb:carbR, protein:proteinR, fat:fatR };
-  currentMacros.breakfast = { carb:Math.round(mealValues[0].carb*10)/10, protein:Math.round(mealValues[0].protein*10)/10, fat:Math.round(mealValues[0].fat*10)/10 };
-  currentMacros.lunch = { carb:Math.round(mealValues[1].carb*10)/10, protein:Math.round(mealValues[1].protein*10)/10, fat:Math.round(mealValues[1].fat*10)/10 };
-  currentMacros.dinner = { carb:Math.round(mealValues[2].carb*10)/10, protein:Math.round(mealValues[2].protein*10)/10, fat:Math.round(mealValues[2].fat*10)/10 };
-  renderIntakeProgress();
-  renderIntakeDaySummary();
-
   storageSet(CALC_INPUTS_KEY, { weight, gender, trainingHours: hoursKey, dayType });
 
   resultArea.classList.add('show');
@@ -1064,280 +878,6 @@ function calculateDiet(e){
   document.getElementById('historyWeight').value = weight;
 }
 form.addEventListener('submit', calculateDiet);
-
-// ============================================================
-// 每餐达标记录
-// ============================================================
-const MEAL_LABEL = { breakfast:'早餐', lunch:'午餐', dinner:'晚餐' };
-
-function todayKey(){ return new Date().toISOString().split('T')[0]; }
-
-function ensureTodayLog(){
-  const date = todayKey();
-  if(!intakeLogCache[date]) intakeLogCache[date] = { breakfast:[], lunch:[], dinner:[], snack:[] };
-  if(!intakeLogCache[date].breakfast) intakeLogCache[date].breakfast = [];
-  if(!intakeLogCache[date].lunch) intakeLogCache[date].lunch = [];
-  if(!intakeLogCache[date].dinner) intakeLogCache[date].dinner = [];
-  if(!intakeLogCache[date].snack) intakeLogCache[date].snack = []; // 训练日加餐（蛋白粉+香蕉），独立于三餐
-  return intakeLogCache[date];
-}
-
-function getTodayIntake(){
-  return ensureTodayLog();
-}
-
-async function addIntakeEntry(entry){
-  const dayLog = getTodayIntake();
-  dayLog[currentIntakeMeal].push({ id: Date.now().toString(36)+Math.random().toString(36).substr(2,5), ...entry });
-  await storageSet(INTAKE_LOG_KEY, intakeLogCache);
-  renderIntakeProgress();
-  renderIntakeList();
-  renderIntakeDaySummary();
-}
-
-async function deleteIntakeEntry(id){
-  const dayLog = getTodayIntake();
-  dayLog[currentIntakeMeal] = dayLog[currentIntakeMeal].filter(e=>e.id!==id);
-  await storageSet(INTAKE_LOG_KEY, intakeLogCache);
-  renderIntakeProgress();
-  renderIntakeList();
-  renderIntakeDaySummary();
-}
-
-// ============================================================
-// 常用食物快捷复用
-// ============================================================
-const MAX_FAVORITE_CHIPS = 8;
-
-async function recordFoodFavorite(entry){
-  const key = entry.name.trim().toLowerCase();
-  if(!key) return;
-  const existing = foodFavoritesCache.find(f=>f.name.trim().toLowerCase()===key);
-  if(existing){
-    existing.carb = entry.carb; existing.protein = entry.protein; existing.fat = entry.fat;
-    existing.count = (existing.count||0) + 1;
-    existing.lastUsed = Date.now();
-  } else {
-    foodFavoritesCache.push({
-      id: Date.now().toString(36)+Math.random().toString(36).substr(2,5),
-      name: entry.name.trim(), carb: entry.carb, protein: entry.protein, fat: entry.fat,
-      count: 1, lastUsed: Date.now()
-    });
-  }
-  await storageSet(FOOD_FAVORITES_KEY, foodFavoritesCache);
-  renderFavoriteChips();
-}
-
-async function deleteFavoriteFood(id){
-  foodFavoritesCache = foodFavoritesCache.filter(f=>f.id!==id);
-  await storageSet(FOOD_FAVORITES_KEY, foodFavoritesCache);
-  renderFavoriteChips();
-}
-
-function renderFavoriteChips(){
-  const block = document.getElementById('favoriteFoodsBlock');
-  const container = document.getElementById('favoriteFoodsChips');
-  if(!block || !container) return;
-  if(foodFavoritesCache.length === 0){
-    block.style.display = 'none';
-    return;
-  }
-  block.style.display = 'block';
-  const top = [...foodFavoritesCache]
-    .sort((a,b)=> (b.count-a.count) || (b.lastUsed-a.lastUsed))
-    .slice(0, MAX_FAVORITE_CHIPS);
-  container.innerHTML = top.map(f=>`
-    <div class="fav-chip" data-id="${f.id}">
-      <div>
-        <div class="fav-chip-name">${f.name}</div>
-        <div class="fav-chip-macros">碳${f.carb||0} 蛋${f.protein||0} 脂${f.fat||0}</div>
-      </div>
-      <button type="button" class="fav-chip-del" data-id="${f.id}" title="移除">✕</button>
-    </div>
-  `).join('');
-  container.querySelectorAll('.fav-chip').forEach(chip=>{
-    chip.addEventListener('click', function(e){
-      if(e.target.closest('.fav-chip-del')) return;
-      const fav = foodFavoritesCache.find(f=>f.id===this.dataset.id);
-      if(!fav) return;
-      addIntakeEntry({ name: fav.name, carb: fav.carb, protein: fav.protein, fat: fav.fat });
-      recordFoodFavorite(fav);
-    });
-  });
-  container.querySelectorAll('.fav-chip-del').forEach(btn=>{
-    btn.addEventListener('click', function(e){
-      e.stopPropagation();
-      deleteFavoriteFood(this.dataset.id);
-    });
-  });
-}
-
-document.getElementById('addIntakeBtn').addEventListener('click', function(){
-  const nameEl = document.getElementById('intakeName');
-  const carbEl = document.getElementById('intakeCarb');
-  const proteinEl = document.getElementById('intakeProtein');
-  const fatEl = document.getElementById('intakeFat');
-  const carb = parseFloat(carbEl.value) || 0;
-  const protein = parseFloat(proteinEl.value) || 0;
-  const fat = parseFloat(fatEl.value) || 0;
-  if(carb<=0 && protein<=0 && fat<=0){ alert('请至少输入一项营养素含量'); return; }
-  const typedName = nameEl.value.trim();
-  const name = typedName || `${MEAL_LABEL[currentIntakeMeal]}记录`;
-  const macros = { carb: Math.round(carb*10)/10, protein: Math.round(protein*10)/10, fat: Math.round(fat*10)/10 };
-  addIntakeEntry({ name, ...macros });
-  if(typedName) recordFoodFavorite({ name: typedName, ...macros });
-  nameEl.value=''; carbEl.value=''; proteinEl.value=''; fatEl.value='';
-});
-[document.getElementById('intakeName'), document.getElementById('intakeCarb'), document.getElementById('intakeProtein'), document.getElementById('intakeFat')].forEach(el=>{
-  el.addEventListener('keydown', function(e){
-    if(e.key === 'Enter') document.getElementById('addIntakeBtn').click();
-  });
-});
-
-function sumMealIntake(mealEntries){
-  return mealEntries.reduce((acc,e)=>{
-    acc.carb += e.carb||0; acc.protein += e.protein||0; acc.fat += e.fat||0;
-    return acc;
-  }, { carb:0, protein:0, fat:0 });
-}
-
-function intakeBarRow(label, colorVar, consumed, target){
-  const pct = target>0 ? Math.min(100, Math.round((consumed/target)*100)) : 0;
-  const over = target>0 && consumed > target;
-  return `<div>
-    <div class="intake-progress-row">
-      <span>${label}</span>
-      <span class="ipv ${over?'over':''}">${Math.round(consumed*10)/10} / ${target>0?target:'--'} g</span>
-    </div>
-    <div class="intake-bar-track">
-      <div class="intake-bar-fill" style="width:${pct}%; background:${over?'var(--danger)':colorVar};"></div>
-    </div>
-  </div>`;
-}
-
-function renderIntakeProgress(){
-  const container = document.getElementById('intakeProgress');
-  if(!container) return;
-  const dayLog = getTodayIntake();
-  const entries = dayLog[currentIntakeMeal] || [];
-  const consumed = sumMealIntake(entries);
-  const target = currentMacros[currentIntakeMeal] || { carb:0, protein:0, fat:0 };
-  container.innerHTML =
-    intakeBarRow('碳水', 'var(--carb)', consumed.carb, target.carb) +
-    intakeBarRow('蛋白质', 'var(--protein)', consumed.protein, target.protein) +
-    intakeBarRow('脂肪', 'var(--fat)', consumed.fat, target.fat);
-}
-
-function renderIntakeList(){
-  const container = document.getElementById('intakeList');
-  if(!container) return;
-  const dayLog = getTodayIntake();
-  const entries = dayLog[currentIntakeMeal] || [];
-  if(entries.length === 0){
-    container.innerHTML = `<div class="intake-empty">${MEAL_LABEL[currentIntakeMeal]}还没有记录，添加你吃的食物吧</div>`;
-    return;
-  }
-  container.innerHTML = entries.map(e=>`
-    <div class="intake-item">
-      <div class="intake-item-info">
-        <span class="intake-item-name">${e.name}</span>
-        <span class="intake-item-macros">
-          <span class="c">碳水 ${e.carb||0}g</span>
-          <span class="p">蛋白 ${e.protein||0}g</span>
-          <span class="f">脂肪 ${e.fat||0}g</span>
-        </span>
-      </div>
-      <button class="btn-danger" data-id="${e.id}">删除</button>
-    </div>
-  `).join('');
-  container.querySelectorAll('.btn-danger').forEach(btn=>{
-    btn.addEventListener('click', function(){ deleteIntakeEntry(this.dataset.id); });
-  });
-}
-
-function renderIntakeDaySummary(){
-  const container = document.getElementById('intakeDaySummary');
-  if(!container) return;
-  const dayLog = getTodayIntake();
-  const dayTotal = ['breakfast','lunch','dinner','snack'].reduce((acc,m)=>{
-    const s = sumMealIntake(dayLog[m]||[]);
-    acc.carb += s.carb; acc.protein += s.protein; acc.fat += s.fat;
-    return acc;
-  }, { carb:0, protein:0, fat:0 });
-  const consumedCal = Math.round(dayTotal.carb*4 + dayTotal.protein*4 + dayTotal.fat*9);
-  const targetCal = Math.round((currentMacros.total.carb||0)*4 + (currentMacros.total.protein||0)*4 + (currentMacros.total.fat||0)*9);
-  const over = targetCal>0 && consumedCal>targetCal;
-  container.innerHTML = `<span>今日已摄入热量</span><span class="ids-val ${over?'over':''}">${consumedCal} / ${targetCal>0?targetCal:'--'} kcal</span>`;
-}
-
-// ============================================================
-// 训练日加餐：蛋白粉 + 香蕉（只在训练日显示，点一下计入今日摄入）
-// ============================================================
-async function logTrainingSnack(){
-  const dayLog = ensureTodayLog();
-  const p = snackRecipeCache.powder, b = snackRecipeCache.banana;
-  const stamp = Date.now();
-  dayLog.snack.push({ id: stamp.toString(36)+Math.random().toString(36).substr(2,5), name:'蛋白粉', carb:p.carb, protein:p.protein, fat:p.fat });
-  dayLog.snack.push({ id: (stamp+1).toString(36)+Math.random().toString(36).substr(2,5), name:'香蕉', carb:b.carb, protein:b.protein, fat:b.fat });
-  await storageSet(INTAKE_LOG_KEY, intakeLogCache);
-  renderSnackList();
-  renderIntakeDaySummary();
-}
-
-async function deleteSnackEntry(id){
-  const dayLog = ensureTodayLog();
-  dayLog.snack = dayLog.snack.filter(e=>e.id!==id);
-  await storageSet(INTAKE_LOG_KEY, intakeLogCache);
-  renderSnackList();
-  renderIntakeDaySummary();
-}
-
-function renderSnackList(){
-  const container = document.getElementById('snackList');
-  if(!container) return;
-  const dayLog = ensureTodayLog();
-  const entries = dayLog.snack || [];
-  if(entries.length === 0){
-    container.innerHTML = `<div class="intake-empty">今天还没记录加餐</div>`;
-    return;
-  }
-  container.innerHTML = entries.map(e=>`
-    <div class="intake-item">
-      <div class="intake-item-info">
-        <span class="intake-item-name">${e.name}</span>
-        <span class="intake-item-macros">
-          <span class="c">碳水 ${e.carb||0}g</span>
-          <span class="p">蛋白 ${e.protein||0}g</span>
-          <span class="f">脂肪 ${e.fat||0}g</span>
-        </span>
-      </div>
-      <button class="btn-danger" data-id="${e.id}">删除</button>
-    </div>
-  `).join('');
-  container.querySelectorAll('.btn-danger').forEach(btn=>{
-    btn.addEventListener('click', function(){ deleteSnackEntry(this.dataset.id); });
-  });
-}
-
-document.getElementById('logSnackBtn').addEventListener('click', logTrainingSnack);
-
-document.getElementById('saveSnackSettingsBtn').addEventListener('click', async function(){
-  const powder = {
-    carb: parseFloat(document.getElementById('snackPowderCarb').value) || 0,
-    protein: parseFloat(document.getElementById('snackPowderProtein').value) || 0,
-    fat: parseFloat(document.getElementById('snackPowderFat').value) || 0
-  };
-  const banana = {
-    carb: parseFloat(document.getElementById('snackBananaCarb').value) || 0,
-    protein: parseFloat(document.getElementById('snackBananaProtein').value) || 0,
-    fat: parseFloat(document.getElementById('snackBananaFat').value) || 0
-  };
-  if(powder.carb<=0 && powder.protein<=0 && powder.fat<=0){ alert('请至少输入蛋白粉的一项营养素'); return; }
-  if(banana.carb<=0 && banana.protein<=0 && banana.fat<=0){ alert('请至少输入香蕉的一项营养素'); return; }
-  snackRecipeCache = { powder, banana };
-  await storageSet(SNACK_RECIPE_KEY, snackRecipeCache);
-  alert('加餐配方已保存');
-});
 
 // ============================================================
 // 体重历史 & 图表
@@ -1555,9 +1095,6 @@ async function init(){
   try{
     historyCache = await storageGet(HISTORY_KEY);
     goalCache = await storageGet(GOAL_KEY, { targetWeight: null, mode: 'cut' });
-    intakeLogCache = await storageGet(INTAKE_LOG_KEY, {});
-    foodFavoritesCache = await storageGet(FOOD_FAVORITES_KEY, []);
-    snackRecipeCache = await storageGet(SNACK_RECIPE_KEY, snackRecipeCache);
     const savedInputs = await storageGet(CALC_INPUTS_KEY, null);
     if(savedInputs){
       document.getElementById('weight').value = savedInputs.weight;
@@ -1588,18 +1125,7 @@ async function init(){
     document.getElementById('goalMode').value = goalCache.mode;
   }
 
-  document.getElementById('snackPowderCarb').value = snackRecipeCache.powder.carb;
-  document.getElementById('snackPowderProtein').value = snackRecipeCache.powder.protein;
-  document.getElementById('snackPowderFat').value = snackRecipeCache.powder.fat;
-  document.getElementById('snackBananaCarb').value = snackRecipeCache.banana.carb;
-  document.getElementById('snackBananaProtein').value = snackRecipeCache.banana.protein;
-  document.getElementById('snackBananaFat').value = snackRecipeCache.banana.fat;
-
   renderChartAndList();
-  renderIntakeList();
-  renderFavoriteChips();
-  renderSnackList();
-  toggleTrainingSnackVisibility();
   form.dispatchEvent(new Event('submit'));
 }
 document.addEventListener('DOMContentLoaded', init);
